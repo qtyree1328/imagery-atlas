@@ -377,7 +377,7 @@
   <script>
     let data = { datasets: [], platforms: [] };
 
-    fetch('data.json')
+    fetch('imagery-atlas-data.json')
       .then(r => r.json())
       .then(d => {
         data = d;
