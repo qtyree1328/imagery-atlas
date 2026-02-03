@@ -1,0 +1,616 @@
+{
+  "datasets": [
+    {
+      "id": "usgs-3dep-lidar-copc",
+      "name": "USGS 3DEP LiDAR (COPC)",
+      "shortName": "3DEP COPC",
+      "type": "LiDAR",
+      "operator": "USGS",
+      "resolution": "0.35-2m point spacing",
+      "revisit": "Varies by area (5-8 year target)",
+      "bands": "Point cloud (XYZ, intensity, class, RGB)",
+      "coverage": "United States + territories",
+      "archive": "2010-present",
+      "license": "Public Domain",
+      "description": "USGS 3D Elevation Program LiDAR in Cloud Optimized Point Cloud (COPC) format. Highest quality elevation data for the US.",
+      "tags": ["lidar", "elevation", "free", "usa", "copc", "point-cloud", "3dep"],
+      "sources": [
+        {
+          "platform": "microsoft-planetary",
+          "collection": "3dep-lidar-copc",
+          "url": "https://planetarycomputer.microsoft.com/dataset/3dep-lidar-copc",
+          "notes": "STAC API, COG format point clouds",
+          "code": "import pystac_client\nimport planetary_computer\n\n# Connect with auto-signing\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\n\n# Search for LiDAR in area\nsearch = catalog.search(\n    collections=['3dep-lidar-copc'],\n    bbox=[-122.5, 37.7, -122.3, 37.9]\n)\nitems = list(search.items())\nprint(f'Found {len(items)} LiDAR tiles')\n\n# Access COPC file\nitem = items[0]\ncopc_url = item.assets['data'].href\nprint(f'COPC URL: {copc_url}')"
+        },
+        {
+          "platform": "usgs-3dep",
+          "collection": "3DEP LiDAR",
+          "url": "https://www.usgs.gov/3d-elevation-program/about-3dep-products-services",
+          "notes": "Direct USGS download, bulk access available",
+          "code": "# Via py3dep package\nfrom py3dep import get_map\nimport geopandas as gpd\n\n# Define area of interest\nbbox = (-122.5, 37.7, -122.3, 37.9)\n\n# Get 3DEP data\ndem = get_map(\"3DEP\", bbox, resolution=10, geo_crs=\"EPSG:4326\", crs=\"EPSG:3857\")\nprint(f\"DEM shape: {dem.shape}\")\nprint(f\"Resolution: {dem.rio.resolution()}\")"
+        },
+        {
+          "platform": "aws-open-data",
+          "collection": "usgs-3dep-copc",
+          "url": "https://registry.opendata.aws/usgs-3dep/",
+          "notes": "S3 bucket access, no auth required",
+          "code": "import boto3\nfrom pystac import Catalog\n\n# Access STAC catalog\ncatalog = Catalog.from_file('https://usgs-3dep-stac.s3.amazonaws.com/catalog.json')\n\n# Or direct S3 access\ns3 = boto3.client('s3', region_name='us-west-2')\nobjects = s3.list_objects_v2(\n    Bucket='usgs-3dep-stac',\n    Prefix='copc/',\n    MaxKeys=100\n)\nprint(f\"Found {len(objects.get('Contents', []))} COPC files\")"
+        }
+      ]
+    },
+    {
+      "id": "usgs-3dep-lidar-ept",
+      "name": "USGS 3DEP LiDAR (EPT)",
+      "shortName": "3DEP EPT",
+      "type": "LiDAR",
+      "operator": "USGS",
+      "resolution": "0.35-2m point spacing",
+      "revisit": "Varies by area (5-8 year target)",
+      "bands": "Point cloud (XYZ, intensity, class)",
+      "coverage": "United States + territories", 
+      "archive": "2010-present",
+      "license": "Public Domain",
+      "description": "USGS 3DEP LiDAR in Entwine Point Tile (EPT) format for streaming access. Optimized for web visualization.",
+      "tags": ["lidar", "elevation", "free", "usa", "ept", "streaming", "3dep"],
+      "sources": [
+        {
+          "platform": "aws-open-data",
+          "collection": "usgs-3dep-ept",
+          "url": "https://registry.opendata.aws/usgs-3dep/",
+          "notes": "EPT format for streaming, CORS enabled",
+          "code": "# EPT streaming URLs pattern:\n# https://s3-us-west-2.amazonaws.com/usgs-lidar-public/{project}/ept.json\n\nimport requests\n\n# Example: Get EPT metadata\nept_url = 'https://s3-us-west-2.amazonaws.com/usgs-lidar-public/WY_FEMA_East_B4_2019/ept.json'\nmetadata = requests.get(ept_url).json()\n\nprint(f\"Points: {metadata['points']:,}\")\nprint(f\"Bounds: {metadata['bounds']}\")\nprint(f\"Schema: {metadata['schema']}\")"
+        },
+        {
+          "platform": "usgs-lidar-explorer",
+          "collection": "EPT Viewer",
+          "url": "https://usgs-lidar.gishub.org/",
+          "notes": "Interactive EPT viewer, educational tool",
+          "code": "# Web-based viewer, no coding required\n# 1. Visit https://usgs-lidar.gishub.org/\n# 2. Use the EPT search tool\n# 3. Draw bounds or search by location\n# 4. Load and visualize point clouds\n# 5. Extract cross-sections and profiles"
+        }
+      ]
+    },
+    {
+      "id": "noaa-digital-coast-lidar",
+      "name": "NOAA Digital Coast LiDAR",
+      "shortName": "NOAA LiDAR",
+      "type": "LiDAR",
+      "operator": "NOAA",
+      "resolution": "0.5-2m point spacing",
+      "revisit": "Varies by area",
+      "bands": "Point cloud (XYZ, intensity, class)",
+      "coverage": "US coastal areas",
+      "archive": "2005-present",
+      "license": "Public Domain",
+      "description": "NOAA coastal LiDAR for flood mapping, coastal change analysis, and hurricane damage assessment.",
+      "tags": ["lidar", "coastal", "free", "usa", "noaa", "topobathy"],
+      "sources": [
+        {
+          "platform": "noaa-digital-coast",
+          "collection": "Topobathymetric LiDAR",
+          "url": "https://coast.noaa.gov/dataviewer/",
+          "notes": "Coastal focus, includes bathymetric LiDAR",
+          "code": "# Manual download via Digital Coast Data Viewer\n# 1. Visit https://coast.noaa.gov/dataviewer/\n# 2. Select 'Elevation' > 'Lidar'\n# 3. Draw area of interest\n# 4. Filter by date/quality\n# 5. Download LAZ or XYZ format\n# No API available, web interface only"
+        }
+      ]
+    },
+    {
+      "id": "icesat2-atl03",
+      "name": "ICESat-2 ATL03 Photon Heights",
+      "shortName": "ICESat-2",
+      "type": "LiDAR",
+      "operator": "NASA",
+      "resolution": "~17m along-track spacing",
+      "revisit": "91-day repeat cycle",
+      "bands": "Photon heights (6 beams)",
+      "coverage": "Global (88°N to 88°S)",
+      "archive": "2018-present",
+      "license": "Public Domain",
+      "description": "Space-based LiDAR for ice sheet elevation, forest canopy height, and global elevation monitoring.",
+      "tags": ["lidar", "satellite", "free", "global", "ice", "forest", "nasa"],
+      "sources": [
+        {
+          "platform": "nasa-earthdata",
+          "collection": "ATL03",
+          "url": "https://nsidc.org/data/atl03",
+          "notes": "Requires Earthdata login, HDF5 format",
+          "code": "import earthaccess\nimport xarray as xr\n\n# Authenticate\nearthaccess.login()\n\n# Search for ICESat-2 data\nresults = earthaccess.search_data(\n    short_name='ATL03',\n    bounding_box=(-122.5, 37.7, -122.3, 37.9),\n    temporal=('2023-01-01', '2023-12-31')\n)\nprint(f'Found {len(results)} granules')\n\n# Download and open\nfiles = earthaccess.download(results[0], './data')\nds = xr.open_dataset(files[0], group='gt1l/heights')\nprint(ds.h_ph)  # Photon heights"
+        },
+        {
+          "platform": "icepyx",
+          "collection": "ATL03/ATL06/ATL08",
+          "url": "https://icepyx.readthedocs.io/",
+          "notes": "Python package for ICESat-2 data access",
+          "code": "import icepyx as ipx\n\n# Initialize query\nregion = ipx.Query('ATL03', [-122.5, 37.7, -122.3, 37.9], \n                   ['2023-01-01', '2023-12-31'])\n\n# Login and order\nregion.earthdata_login('username', 'password')\nregion.order_granules()\nregion.download_granules('./data')\n\nprint(f\"Downloaded {len(region.avail_granules())} granules\")"
+        }
+      ]
+    },
+    {
+      "id": "gedi-l2a",
+      "name": "GEDI L2A Forest Structure",
+      "shortName": "GEDI",
+      "type": "LiDAR",
+      "operator": "NASA",
+      "resolution": "25m footprints, ~60m spacing",
+      "revisit": "Varies by latitude",
+      "bands": "Forest height metrics, ground elevation",
+      "coverage": "±51.6° latitude",
+      "archive": "2019-2023",
+      "license": "Public Domain",
+      "description": "Global Ecosystem Dynamics Investigation. Space-based LiDAR for forest height and structure mapping.",
+      "tags": ["lidar", "satellite", "free", "global", "forest", "canopy", "nasa"],
+      "sources": [
+        {
+          "platform": "nasa-earthdata",
+          "collection": "GEDI02_A",
+          "url": "https://lpdaac.usgs.gov/products/gedi02_av002/",
+          "notes": "Requires Earthdata login, HDF5 format",
+          "code": "import earthaccess\nimport geopandas as gpd\nfrom rasterio.crs import CRS\n\n# Authenticate\nearthaccess.login()\n\n# Search GEDI L2A\nresults = earthaccess.search_data(\n    short_name='GEDI02_A',\n    bounding_box=(-122.5, 37.7, -122.3, 37.9),\n    temporal=('2022-01-01', '2022-12-31')\n)\n\n# Download\nfiles = earthaccess.download(results[0], './data')\nprint(f'Downloaded: {files[0]}')"
+        },
+        {
+          "platform": "gee",
+          "collection": "LARSE/GEDI/GEDI02_A_002_MONTHLY",
+          "url": "https://developers.google.com/earth-engine/datasets/catalog/LARSE_GEDI_GEDI02_A_002_MONTHLY",
+          "notes": "Monthly aggregated GEDI data in Earth Engine",
+          "code": "import ee\nee.Initialize()\n\n# Load GEDI L2A monthly\ngedi = ee.ImageCollection('LARSE/GEDI/GEDI02_A_002_MONTHLY') \\\n    .filterDate('2022-01-01', '2022-12-31') \\\n    .filterBounds(ee.Geometry.Rectangle([-122.5, 37.7, -122.3, 37.9]))\n\n# Get canopy height\ncanopy_height = gedi.select('rh_98').mean()\nprint('Bands:', gedi.first().bandNames().getInfo())"
+        }
+      ]
+    },
+    {
+      "id": "opentopography-lidar",
+      "name": "OpenTopography LiDAR",
+      "shortName": "OpenTopo",
+      "type": "LiDAR",
+      "operator": "NSF/SDSC",
+      "resolution": "Varies (high-resolution)",
+      "revisit": "Various collections",
+      "bands": "Point cloud (XYZ, intensity, class)",
+      "coverage": "Global (research collections)",
+      "archive": "2008-present",
+      "license": "Varies by dataset",
+      "description": "Community repository of high-resolution topographic data. Includes research-grade LiDAR from NSF-funded projects.",
+      "tags": ["lidar", "research", "nsf", "global", "academic", "opentopography"],
+      "sources": [
+        {
+          "platform": "opentopography",
+          "collection": "LiDAR Point Clouds",
+          "url": "https://cloud.sdsc.edu/v1/AUTH_opentopography/Raster/",
+          "notes": "API access, requires registration",
+          "code": "import requests\nfrom urllib.parse import urlencode\n\n# OpenTopography API key required\napi_key = 'your_api_key_here'\nbase_url = 'https://cloud.sdsc.edu/v1/AUTH_opentopography/Raster/'\n\n# Get available datasets\nparams = {\n    'datasetName': 'list',\n    'API_Key': api_key\n}\n\nresponse = requests.get(base_url, params=params)\ndatasets = response.json()\nprint(f\"Available datasets: {len(datasets)}\")"
+        }
+      ]
+    },
+    {
+      "id": "srtm-dem-30m",
+      "name": "SRTM 30m Digital Elevation Model",
+      "shortName": "SRTM 30m",
+      "type": "SAR",
+      "operator": "NASA/NGA",
+      "resolution": "30m (1 arc-second)",
+      "revisit": "N/A (single mission 2000)",
+      "bands": "Single-band elevation (C-band SAR derived)",
+      "coverage": "±60° latitude",
+      "archive": "2000 mission",
+      "license": "Public Domain",
+      "description": "Shuttle Radar Topography Mission DEM. Most widely used global elevation dataset derived from C-band SAR interferometry.",
+      "tags": ["dem", "radar", "sar", "free", "global", "elevation", "srtm"],
+      "sources": [
+        {
+          "platform": "usgs-earthexplorer",
+          "collection": "SRTM 1-Arc Second Global",
+          "url": "https://earthexplorer.usgs.gov/",
+          "notes": "Original source, requires registration",
+          "code": "# Manual download via EarthExplorer\n# 1. Register at https://earthexplorer.usgs.gov/\n# 2. Navigate to Data Sets > Digital Elevation > SRTM\n# 3. Select 'SRTM 1-Arc Second Global'\n# 4. Draw area or enter coordinates\n# 5. Download HGT or GeoTIFF format"
+        },
+        {
+          "platform": "gee",
+          "collection": "USGS/SRTMGL1_003",
+          "url": "https://developers.google.com/earth-engine/datasets/catalog/USGS_SRTMGL1_003",
+          "notes": "Void-filled version in Earth Engine",
+          "code": "import ee\nee.Initialize()\n\n# Load SRTM 30m\nsrtm = ee.Image('USGS/SRTMGL1_003')\n\n# Clip to area of interest\naoi = ee.Geometry.Rectangle([-122.5, 37.7, -122.3, 37.9])\nsrtm_clipped = srtm.clip(aoi)\n\n# Get elevation statistics\nstats = srtm_clipped.reduceRegion(\n    reducer=ee.Reducer.minMax(),\n    geometry=aoi,\n    scale=30\n).getInfo()\nprint(f\"Elevation range: {stats['elevation_min']:.0f} - {stats['elevation_max']:.0f} m\")"
+        },
+        {
+          "platform": "aws-terrain-tiles",
+          "collection": "mapzen-terrain",
+          "url": "https://registry.opendata.aws/terrain-tiles/",
+          "notes": "Pre-processed elevation tiles, no auth",
+          "code": "import rasterio\nfrom rasterio.warp import transform_bounds\nimport mercantile\n\n# Get tile coordinates for bbox\nbbox = (-122.5, 37.7, -122.3, 37.9)\ntiles = list(mercantile.tiles(*bbox, zooms=[10]))\n\n# Access terrain tile\ntile = tiles[0]\ntile_url = f\"https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{tile.z}/{tile.x}/{tile.y}.png\"\n\n# Read PNG terrain tile (Terrarium format)\nwith rasterio.open(tile_url) as src:\n    data = src.read()\n    # Decode Terrarium: elevation = (R * 256 + G + B / 256) - 32768\n    elevation = (data[0] * 256 + data[1] + data[2] / 256) - 32768\n    print(f\"Elevation range: {elevation.min():.1f} - {elevation.max():.1f} m\")"
+        }
+      ]
+    },
+    {
+      "id": "terrasar-x",
+      "name": "TerraSAR-X",
+      "shortName": "TSX",
+      "type": "SAR",
+      "operator": "DLR (Germany)",
+      "resolution": "1-16m",
+      "revisit": "11 days",
+      "bands": "X-band SAR (single/dual pol)",
+      "coverage": "Global",
+      "archive": "2007-present",
+      "license": "Commercial/Research",
+      "description": "High-resolution X-band SAR for detailed terrain mapping, urban monitoring, and interferometry.",
+      "tags": ["sar", "commercial", "x-band", "high-resolution", "interferometry"],
+      "sources": [
+        {
+          "platform": "terrasar-x-archive",
+          "collection": "TerraSAR-X/TanDEM-X",
+          "url": "https://download.geoservice.dlr.de/",
+          "notes": "DLR archive, requires proposal for research use",
+          "code": "# Research access via DLR\n# 1. Submit proposal at https://sss.terrasar-x.dlr.de/\n# 2. Justify scientific use case\n# 3. Access approved data via FTP\n# 4. Commercial use requires license\n# Limited free data for research/education"
+        },
+        {
+          "platform": "gee",
+          "collection": "No GEE collection",
+          "url": "",
+          "notes": "Not available in Google Earth Engine",
+          "code": "# TerraSAR-X not available in GEE\n# Use DLR archive or commercial providers\n# Consider Sentinel-1 as free alternative"
+        }
+      ]
+    },
+    {
+      "id": "tandem-x-global-dem",
+      "name": "TanDEM-X Global DEM",
+      "shortName": "TDX DEM",
+      "type": "SAR",
+      "operator": "DLR (Germany)",
+      "resolution": "12m (WorldDEM)",
+      "revisit": "N/A (one-time mission)",
+      "bands": "Single-band elevation (X-band SAR interferometry)",
+      "coverage": "Global",
+      "archive": "2010-2015 mission",
+      "license": "Commercial/Limited free",
+      "description": "Global digital elevation model from TanDEM-X SAR interferometry. Higher resolution and accuracy than SRTM.",
+      "tags": ["dem", "sar", "interferometry", "x-band", "global", "commercial"],
+      "sources": [
+        {
+          "platform": "tandem-x-science",
+          "collection": "TanDEM-X 90m DEM",
+          "url": "https://geoservice.dlr.de/web/dataguide/tdm90/",
+          "notes": "Free 90m version for research",
+          "code": "# Free 90m TanDEM-X DEM access\n# 1. Register at https://download.geoservice.dlr.de/\n# 2. Browse TanDEM-X 90m DEM collection\n# 3. Download tiles in GeoTIFF format\n# 4. No programming API, web download only"
+        },
+        {
+          "platform": "copernicus-dem",
+          "collection": "Copernicus GLO-30",
+          "url": "https://spacedata.copernicus.eu/collections/copernicus-digital-elevation-model",
+          "notes": "Based on TanDEM-X, freely available 30m",
+          "code": "# Via Copernicus DEM (based on TanDEM-X)\nimport requests\nfrom zipfile import ZipFile\n\n# Download Copernicus DEM 30m\nbase_url = 'https://cloud.sdsc.edu/v1/AUTH_opentopography/Raster/COP30/'\ntile_name = 'Copernicus_DSM_COG_30_N37_00_W123_00_DEM.tif'\nurl = f'{base_url}{tile_name}'\n\nresponse = requests.get(url)\nwith open(tile_name, 'wb') as f:\n    f.write(response.content)\nprint(f'Downloaded: {tile_name}')"
+        }
+      ]
+    },
+    {
+      "id": "cosmo-skymed",
+      "name": "COSMO-SkyMed",
+      "shortName": "CSK",
+      "type": "SAR",
+      "operator": "ASI (Italy)",
+      "resolution": "1-30m",
+      "revisit": "1-16 days (constellation)",
+      "bands": "X-band SAR (single/dual/quad pol)",
+      "coverage": "Global",
+      "archive": "2007-present",
+      "license": "Commercial",
+      "description": "Italian X-band SAR constellation for high-resolution Earth observation, emergency response, and defense applications.",
+      "tags": ["sar", "commercial", "x-band", "constellation", "high-resolution"],
+      "sources": [
+        {
+          "platform": "asi-cosmo",
+          "collection": "COSMO-SkyMed",
+          "url": "https://www.asi.it/earth-observation/cosmo-skymed/",
+          "notes": "Commercial data via ASI and distributors",
+          "code": "# Commercial access only\n# 1. Contact ASI or authorized distributors\n# 2. Request quotation for specific data needs\n# 3. Data delivered via secure FTP\n# 4. Formats: HDF5, GeoTIFF\n# No free access available"
+        }
+      ]
+    },
+    {
+      "id": "uk-environment-agency-aerial",
+      "name": "UK Environment Agency Aerial Photography",
+      "shortName": "UK EA Aerial",
+      "type": "Aerial Imagery",
+      "operator": "UK Environment Agency",
+      "resolution": "12.5-25cm",
+      "revisit": "Annual/biennial",
+      "bands": "RGB + NIR",
+      "coverage": "England",
+      "archive": "2013-present",
+      "license": "Open Government Licence",
+      "description": "High-resolution aerial photography of England for flood risk management and environmental monitoring.",
+      "tags": ["aerial", "free", "uk", "england", "high-resolution", "government"],
+      "sources": [
+        {
+          "platform": "uk-environment-agency",
+          "collection": "Aerial Photography",
+          "url": "https://environment.data.gov.uk/DefraDataDownload/?Mode=survey",
+          "notes": "Download portal, TIFF format",
+          "code": "# Manual download via EA portal\n# 1. Visit https://environment.data.gov.uk/DefraDataDownload/?Mode=survey\n# 2. Select 'Aerial Photography'\n# 3. Choose coverage year and area\n# 4. Download tiles in TIFF format\n# No API available, web interface only"
+        }
+      ]
+    },
+    {
+      "id": "germany-aerial-dop",
+      "name": "Germany Digital Orthophoto (DOP)",
+      "shortName": "DOP",
+      "type": "Aerial Imagery", 
+      "operator": "German States (Länder)",
+      "resolution": "20-40cm",
+      "revisit": "3-6 years",
+      "bands": "RGB + NIR",
+      "coverage": "Germany",
+      "archive": "Varies by state",
+      "license": "Open Data (varies by state)",
+      "description": "Digital orthophotos from German state mapping agencies. Resolution and access vary by federal state.",
+      "tags": ["aerial", "free", "germany", "orthophoto", "government"],
+      "sources": [
+        {
+          "platform": "geoportal-de",
+          "collection": "DOP (Digital Orthophoto)",
+          "url": "https://www.geoportal.de/",
+          "notes": "Federal portal, varies by state",
+          "code": "# Access varies by German state (Bundesland)\n# Examples:\n# - Bavaria: https://www.ldbv.bayern.de/\n# - NRW: https://www.opengeodata.nrw.de/\n# - Berlin: https://fbinter.stadt-berlin.de/\n# Most provide WMS/WFS services\n# Download requires state-specific portals"
+        }
+      ]
+    },
+    {
+      "id": "usgs-historical-aerial",
+      "name": "USGS Historical Aerial Photography",
+      "shortName": "USGS Historical",
+      "type": "Aerial Imagery",
+      "operator": "USGS",
+      "resolution": "1-2m (digitized film)",
+      "revisit": "Historical (1930s-1990s)",
+      "bands": "Grayscale, Color IR (later)",
+      "coverage": "United States",
+      "archive": "1930s-1990s",
+      "license": "Public Domain",
+      "description": "Historical aerial photography digitized from film. Valuable for land use change analysis and historical mapping.",
+      "tags": ["aerial", "historical", "free", "usa", "usgs", "land-use-change"],
+      "sources": [
+        {
+          "platform": "usgs-earthexplorer",
+          "collection": "Aerial Photography Various Dates",
+          "url": "https://earthexplorer.usgs.gov/",
+          "notes": "Search by location and date range",
+          "code": "# Manual search via EarthExplorer\n# 1. Visit https://earthexplorer.usgs.gov/\n# 2. Set coordinates/location\n# 3. Data Sets > Aerial Imagery > Historical\n# 4. Select collections by era:\n#    - Aerial Photography Single Frames\n#    - High Resolution Orthoimagery\n# 5. Filter by date and quality"
+        }
+      ]
+    },
+    {
+      "id": "openaerial-map",
+      "name": "OpenAerialMap",
+      "shortName": "OAM",
+      "type": "Aerial Imagery",
+      "operator": "Humanitarian OpenStreetMap Team",
+      "resolution": "Varies (5cm-2m typical)",
+      "revisit": "Event-driven",
+      "bands": "RGB",
+      "coverage": "Global (disaster/humanitarian areas)",
+      "archive": "2015-present",
+      "license": "Various open licenses",
+      "description": "Community-driven aerial imagery for humanitarian mapping and disaster response. Often post-disaster imagery.",
+      "tags": ["aerial", "humanitarian", "disaster", "community", "open"],
+      "sources": [
+        {
+          "platform": "openaerial-map",
+          "collection": "OAM Imagery",
+          "url": "https://map.openaerialmap.org/",
+          "notes": "Browse and download interface, API available",
+          "code": "import requests\nimport geopandas as gpd\n\n# Search OAM API\napi_url = 'https://api.openaerialmap.org/meta'\nparams = {\n    'bbox': '-122.5,37.7,-122.3,37.9',\n    'sort': 'acquisition_start',\n    'order': 'desc',\n    'limit': 10\n}\n\nresponse = requests.get(api_url, params=params)\ndata = response.json()\n\nprint(f\"Found {data['meta']['found']} imagery items\")\nfor item in data['results']:\n    print(f\"Date: {item['acquisition_start']}, Resolution: {item['gsd']}m\")\n    print(f\"Download: {item['uuid']}\")"
+        }
+      ]
+    },
+    {
+      "id": "france-ign-aerial",
+      "name": "IGN France Aerial Photography",
+      "shortName": "IGN BD ORTHO",
+      "type": "Aerial Imagery",
+      "operator": "IGN France",
+      "resolution": "20-50cm",
+      "revisit": "3-5 years",
+      "bands": "RGB + NIR",
+      "coverage": "France + territories",
+      "archive": "2000-present",
+      "license": "Open License Etalab",
+      "description": "National aerial photography program from French National Geographic Institute. High-quality orthophotos of France.",
+      "tags": ["aerial", "free", "france", "ign", "orthophoto", "government"],
+      "sources": [
+        {
+          "platform": "ign-geoservices",
+          "collection": "BD ORTHO",
+          "url": "https://geoservices.ign.fr/bdortho",
+          "notes": "WMS/WMTS services, download portal",
+          "code": "# Via WMS service\nfrom owslib.wms import WebMapService\n\n# Connect to IGN WMS\nwms_url = 'https://wxs.ign.fr/ortho/wmts'\nwms = WebMapService(wms_url)\n\nprint(f\"Available layers: {list(wms.contents.keys())}\")\n\n# Or download via portal:\n# 1. Visit https://geoservices.ign.fr/telechargement\n# 2. Select BD ORTHO product\n# 3. Choose department/region\n# 4. Download in ECW or JPEG2000 format"
+        }
+      ]
+    }
+  ],
+  "platforms": [
+    {
+      "id": "usgs-3dep",
+      "name": "USGS 3D Elevation Program",
+      "url": "https://www.usgs.gov/3d-elevation-program",
+      "catalogUrl": "https://apps.nationalmap.gov/lidar-explorer/",
+      "apiUrl": "https://elevation.nationalmap.gov/arcgis/rest/services",
+      "api": "ArcGIS REST, py3dep Python package",
+      "registration": "Not required",
+      "apiKey": "Not required",
+      "rateLimit": "Fair use",
+      "pricing": "Free",
+      "formats": ["LAZ", "LAS", "COPC", "GeoTIFF"],
+      "description": "USGS program to collect high-resolution elevation data for the US. Includes LiDAR point clouds and derived DEMs.",
+      "strengths": ["Highest quality US elevation data", "Multiple formats", "Public domain", "Good spatial coverage"],
+      "limitations": ["US only", "Coverage varies by area", "Large file sizes"],
+      "datasets": ["usgs-3dep-lidar-copc", "usgs-3dep-lidar-ept"]
+    },
+    {
+      "id": "noaa-digital-coast",
+      "name": "NOAA Digital Coast",
+      "url": "https://coast.noaa.gov/",
+      "catalogUrl": "https://coast.noaa.gov/dataviewer/",
+      "apiUrl": "No API",
+      "api": "Web interface only",
+      "registration": "Not required", 
+      "apiKey": "Not required",
+      "rateLimit": "N/A",
+      "pricing": "Free",
+      "formats": ["LAZ", "XYZ", "GeoTIFF"],
+      "description": "NOAA's coastal data portal including topographic and bathymetric LiDAR for coastal zone management.",
+      "strengths": ["Coastal focus", "Topobathymetric LiDAR", "Hurricane damage assessment data", "Free access"],
+      "limitations": ["Coastal areas only", "No API", "Manual download only"],
+      "datasets": ["noaa-digital-coast-lidar"]
+    },
+    {
+      "id": "opentopography",
+      "name": "OpenTopography",
+      "url": "https://opentopography.org/",
+      "catalogUrl": "https://portal.opentopography.org/datasets",
+      "apiUrl": "https://cloud.sdsc.edu/v1/AUTH_opentopography/Raster/",
+      "api": "REST API, requires key",
+      "registration": "Required (free for research)",
+      "apiKey": "API key required",
+      "rateLimit": "Fair use",
+      "pricing": "Free for research/education",
+      "formats": ["LAZ", "LAS", "GeoTIFF", "NetCDF"],
+      "description": "NSF-funded repository of high-resolution topographic data including research-grade LiDAR collections.",
+      "strengths": ["High-quality research data", "Global coverage", "API access", "Academic focus"],
+      "limitations": ["Requires registration", "Limited commercial use", "Primarily research datasets"],
+      "datasets": ["opentopography-lidar"]
+    },
+    {
+      "id": "icepyx",
+      "name": "icepyx (ICESat-2 Python)",
+      "url": "https://icepyx.readthedocs.io/",
+      "catalogUrl": "https://nsidc.org/data/icesat-2",
+      "apiUrl": "NASA Earthdata",
+      "api": "Python package wrapping Earthdata",
+      "registration": "Earthdata login required",
+      "apiKey": "Earthdata credentials",
+      "rateLimit": "Earthdata limits",
+      "pricing": "Free",
+      "formats": ["HDF5"],
+      "description": "Python package for accessing and processing ICESat-2 satellite LiDAR data with simplified workflows.",
+      "strengths": ["Simplified ICESat-2 access", "Processing workflows included", "Active development"],
+      "limitations": ["ICESat-2 only", "Python-specific", "Requires Earthdata login"],
+      "datasets": ["icesat2-atl03"]
+    },
+    {
+      "id": "usgs-lidar-explorer",
+      "name": "USGS LiDAR Explorer",
+      "url": "https://usgs-lidar.gishub.org/",
+      "catalogUrl": "https://usgs-lidar.gishub.org/",
+      "apiUrl": "maplibre-gl-usgs-lidar library",
+      "api": "JavaScript library, STAC",
+      "registration": "Not required",
+      "apiKey": "Not required",
+      "rateLimit": "AWS S3 limits",
+      "pricing": "Free",
+      "formats": ["EPT", "COPC"],
+      "description": "Interactive web viewer for USGS 3DEP LiDAR data using EPT streaming format. Educational and visualization tool.",
+      "strengths": ["No download required", "Interactive visualization", "Cross-section tools", "Fast streaming"],
+      "limitations": ["Visualization only", "US data only", "No bulk download"],
+      "datasets": ["usgs-3dep-lidar-ept"]
+    },
+    {
+      "id": "terrasar-x-archive",
+      "name": "TerraSAR-X/TanDEM-X Archive",
+      "url": "https://sss.terrasar-x.dlr.de/",
+      "catalogUrl": "https://download.geoservice.dlr.de/",
+      "apiUrl": "No public API",
+      "api": "Proposal-based access",
+      "registration": "Required (research proposal)",
+      "apiKey": "Account-based access",
+      "rateLimit": "Proposal-dependent",
+      "pricing": "Free for research, commercial licensing available",
+      "formats": ["Complex SAR", "GeoTIFF"],
+      "description": "DLR archive for TerraSAR-X and TanDEM-X SAR data. Requires research proposal for academic access.",
+      "strengths": ["High-resolution X-band SAR", "Global coverage", "Interferometric capabilities"],
+      "limitations": ["Proposal required", "Limited free access", "Academic/commercial restrictions"],
+      "datasets": ["terrasar-x", "tandem-x-global-dem"]
+    },
+    {
+      "id": "tandem-x-science",
+      "name": "TanDEM-X Science Portal",
+      "url": "https://geoservice.dlr.de/web/dataguide/tdm90/",
+      "catalogUrl": "https://download.geoservice.dlr.de/",
+      "apiUrl": "No API",
+      "api": "Manual download",
+      "registration": "Required (free)",
+      "apiKey": "Login credentials", 
+      "rateLimit": "Fair use",
+      "pricing": "Free (90m DEM)",
+      "formats": ["GeoTIFF"],
+      "description": "DLR portal providing free 90m resolution TanDEM-X Global DEM for research and education.",
+      "strengths": ["Free 90m global DEM", "High quality", "Derived from X-band SAR interferometry"],
+      "limitations": ["90m resolution only", "Manual download", "No API access"],
+      "datasets": ["tandem-x-global-dem"]
+    },
+    {
+      "id": "uk-environment-agency",
+      "name": "UK Environment Agency",
+      "url": "https://environment.data.gov.uk/",
+      "catalogUrl": "https://environment.data.gov.uk/DefraDataDownload/?Mode=survey",
+      "apiUrl": "No API",
+      "api": "Manual download",
+      "registration": "Not required",
+      "apiKey": "Not required",
+      "rateLimit": "Fair use",
+      "pricing": "Free (Open Government Licence)",
+      "formats": ["TIFF", "ECW"],
+      "description": "UK government portal providing aerial photography and environmental data for England under open license.",
+      "strengths": ["High resolution (12.5-25cm)", "Recent data", "Open license", "Regular updates"],
+      "limitations": ["England only", "Manual download", "No API"],
+      "datasets": ["uk-environment-agency-aerial"]
+    },
+    {
+      "id": "geoportal-de",
+      "name": "Geoportal.de",
+      "url": "https://www.geoportal.de/",
+      "catalogUrl": "https://www.geoportal.de/",
+      "apiUrl": "Varies by state",
+      "api": "WMS/WFS (state dependent)",
+      "registration": "Varies by state",
+      "apiKey": "Varies by state",
+      "rateLimit": "Varies by state",
+      "pricing": "Mostly free",
+      "formats": ["Various"],
+      "description": "German federal geoportal providing access to spatial data from all 16 German states including aerial photography.",
+      "strengths": ["Comprehensive German coverage", "Multiple data types", "Some open data"],
+      "limitations": ["Varies by state", "Complex access", "Language barrier", "Inconsistent APIs"],
+      "datasets": ["germany-aerial-dop"]
+    },
+    {
+      "id": "openaerial-map",
+      "name": "OpenAerialMap",
+      "url": "https://openaerialmap.org/",
+      "catalogUrl": "https://map.openaerialmap.org/",
+      "apiUrl": "https://api.openaerialmap.org/",
+      "api": "REST API",
+      "registration": "Not required",
+      "apiKey": "Not required",
+      "rateLimit": "Fair use",
+      "pricing": "Free",
+      "formats": ["GeoTIFF", "COG"],
+      "description": "Community platform for sharing aerial imagery, particularly for humanitarian and disaster response mapping.",
+      "strengths": ["Disaster/emergency imagery", "API access", "Open data", "Community contributed"],
+      "limitations": ["Irregular coverage", "Event-driven data", "Quality varies", "Limited systematic coverage"],
+      "datasets": ["openaerial-map"]
+    },
+    {
+      "id": "ign-geoservices",
+      "name": "IGN Géoservices",
+      "url": "https://geoservices.ign.fr/",
+      "catalogUrl": "https://geoservices.ign.fr/documentation/services/services-geoplateforme",
+      "apiUrl": "https://geoservices.ign.fr/documentation/services/api-et-services-web",
+      "api": "WMS, WMTS, WFS",
+      "registration": "Required for some services",
+      "apiKey": "Required for some services",
+      "rateLimit": "Service dependent",
+      "pricing": "Free for basic use",
+      "formats": ["ECW", "JPEG2000", "GeoTIFF"],
+      "description": "French National Geographic Institute providing authoritative spatial data including aerial photography of France.",
+      "strengths": ["Authoritative French data", "High quality", "Regular updates", "Multiple services"],
+      "limitations": ["France only", "Some services require registration", "Language barrier"],
+      "datasets": ["france-ign-aerial"]
+    }
+  ]
+}
