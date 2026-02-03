@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | Imagery Atlas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --surface: #ffffff;
+      --background: #f8f9fa;
+      --on-surface: #202124;
+      --on-surface-secondary: #5f6368;
+      --border: #dadce0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--on-surface);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-icon { font-size: 28px; }
+    .logo-text { font-size: 20px; font-weight: 500; }
+    .logo-text span { color: var(--on-surface-secondary); font-weight: 400; }
+
+    nav { display: flex; gap: 8px; }
+
+    nav a {
+      padding: 8px 16px;
+      text-decoration: none;
+      color: var(--on-surface-secondary);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      background: rgba(26, 115, 232, 0.08);
+      color: var(--primary);
+    }
+
+    nav a.active {
+      background: rgba(26, 115, 232, 0.12);
+      color: var(--primary);
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 500;
+      margin: 40px 0 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    p {
+      margin-bottom: 16px;
+      font-size: 16px;
+      color: var(--on-surface-secondary);
+    }
+
+    .lead {
+      font-size: 20px;
+      color: var(--on-surface);
+      margin-bottom: 32px;
+    }
+
+    ul {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      color: var(--on-surface-secondary);
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin: 24px 0;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      margin-bottom: 0;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .feature {
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 20px;
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .feature h4 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    code {
+      background: var(--background);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🛰️</span>
+        <span class="logo-text">Imagery Atlas <span>| Satellite Data Directory</span></span>
+      </a>
+      <nav>
+        <a href="index.html">Datasets</a>
+        <a href="platforms.html">Platforms</a>
+        <a href="about.html" class="active">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>About Imagery Atlas</h1>
+    
+    <p class="lead">
+      Imagery Atlas is a comprehensive directory of satellite imagery datasets and the platforms where you can access them. Our goal is to help researchers, analysts, and developers find the right data for their needs.
+    </p>
+
+    <h2>Why Imagery Atlas?</h2>
+    <p>
+      Satellite imagery is available from dozens of sources — each with different data formats, APIs, access requirements, and pricing models. Finding the right data source can be overwhelming, especially when the same dataset (like Sentinel-2) is available from multiple platforms.
+    </p>
+    <p>
+      Imagery Atlas solves this by providing a single, searchable catalog that maps datasets to all their access points. Need Landsat data? We'll show you whether to use USGS EarthExplorer, Google Earth Engine, AWS, or Microsoft Planetary Computer based on your specific needs.
+    </p>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h4>Dataset Catalog</h4>
+        <p>Comprehensive list of satellite imagery from optical, SAR, hyperspectral, and weather sensors.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔗</div>
+        <h4>Multi-Source Mapping</h4>
+        <p>Every dataset shows all platforms where it's available, so you can choose the best one for your workflow.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔑</div>
+        <h4>Access Details</h4>
+        <p>API types, authentication requirements, rate limits, and pricing for every platform.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🆓</div>
+        <h4>Free Data Focus</h4>
+        <p>Easy filtering to find open and free satellite imagery sources.</p>
+      </div>
+    </div>
+
+    <h2>What's Included</h2>
+    <p>Imagery Atlas focuses exclusively on satellite and aerial <strong>imagery</strong> — raster data captured by sensors in orbit or on aircraft. This includes:</p>
+    <ul>
+      <li><strong>Optical Multispectral</strong> — Landsat, Sentinel-2, MODIS, VIIRS, Planet, Maxar</li>
+      <li><strong>SAR (Synthetic Aperture Radar)</strong> — Sentinel-1, ALOS PALSAR, TerraSAR-X</li>
+      <li><strong>Hyperspectral</strong> — EMIT, PRISMA, EnMAP, EO-1 Hyperion</li>
+      <li><strong>Geostationary Weather</strong> — GOES, Himawari, MSG</li>
+      <li><strong>Ocean Color</strong> — MODIS Ocean, VIIRS, Sentinel-3 OLCI</li>
+      <li><strong>Aerial Imagery</strong> — NAIP, high-resolution orthoimagery</li>
+      <li><strong>Historical/Declassified</strong> — CORONA, KH series</li>
+    </ul>
+
+    <div class="card">
+      <h3>What's NOT Included</h3>
+      <p>
+        To keep the catalog focused and useful, we exclude non-imagery data like: DEMs/elevation models (unless imagery-derived), vector data, climate model outputs, derived products without imagery, and in-situ measurements.
+      </p>
+    </div>
+
+    <h2>Data Accuracy</h2>
+    <p>
+      Satellite data access is a rapidly evolving landscape. Platforms update their APIs, pricing changes, and new datasets are added regularly. We do our best to keep information current, but always verify details with the official platform documentation before building production workflows.
+    </p>
+
+    <h2>Contributing</h2>
+    <p>
+      Spotted an error? Know of a dataset or platform we're missing? Imagery Atlas is maintained as an open resource. Please reach out with corrections or additions.
+    </p>
+
+    <h2>Useful Resources</h2>
+    <ul>
+      <li><a href="https://stacindex.org" target="_blank">STAC Index</a> — Directory of STAC catalogs</li>
+      <li><a href="https://developers.google.com/earth-engine/datasets" target="_blank">Google Earth Engine Data Catalog</a></li>
+      <li><a href="https://registry.opendata.aws" target="_blank">AWS Registry of Open Data</a></li>
+      <li><a href="https://planetarycomputer.microsoft.com/catalog" target="_blank">Microsoft Planetary Computer Catalog</a></li>
+      <li><a href="https://radiantearth.github.io/stac-spec/" target="_blank">STAC Specification</a></li>
+    </ul>
+
+    <h2>Technical Notes</h2>
+    <p>
+      This site is a static HTML/CSS/JavaScript application with no backend dependencies. Data is stored in a single <code>data.json</code> file for easy updates and transparency. The design is inspired by Google Earth Engine's data catalog interface.
+    </p>
+  </main>
+</body>
+</html>

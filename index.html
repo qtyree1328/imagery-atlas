@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imagery Atlas | Satellite Data Directory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --surface: #ffffff;
+      --background: #f8f9fa;
+      --on-surface: #202124;
+      --on-surface-secondary: #5f6368;
+      --border: #dadce0;
+      --success: #1e8e3e;
+      --warning: #f9ab00;
+      --free: #1e8e3e;
+      --commercial: #ea4335;
+      --shadow-1: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+      --shadow-2: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--background);
+      color: var(--on-surface);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .logo-text span {
+      color: var(--on-surface-secondary);
+      font-weight: 400;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    nav a {
+      padding: 8px 16px;
+      text-decoration: none;
+      color: var(--on-surface-secondary);
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    nav a:hover {
+      background: rgba(26, 115, 232, 0.08);
+      color: var(--primary);
+    }
+
+    nav a.active {
+      background: rgba(26, 115, 232, 0.12);
+      color: var(--primary);
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1a73e8 0%, #4285f4 50%, #669df6 100%);
+      color: white;
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Search */
+    .search-container {
+      max-width: 720px;
+      margin: -28px auto 24px;
+      padding: 0 24px;
+    }
+
+    .search-box {
+      background: var(--surface);
+      border-radius: 28px;
+      box-shadow: var(--shadow-2);
+      display: flex;
+      align-items: center;
+      padding: 8px 20px;
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 12px;
+      font-family: inherit;
+    }
+
+    .search-box .icon {
+      color: var(--on-surface-secondary);
+      font-size: 20px;
+    }
+
+    /* Main */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .filter-chip {
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-chip.active {
+      background: rgba(26, 115, 232, 0.12);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-chip .count {
+      background: var(--border);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .filter-chip.active .count {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Stats */
+    .stats-bar {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--on-surface-secondary);
+    }
+
+    /* Grid */
+    .datasets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    /* Dataset Card */
+    .dataset-card {
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .dataset-card:hover {
+      box-shadow: var(--shadow-2);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      padding: 20px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .card-operator {
+      font-size: 13px;
+      color: var(--on-surface-secondary);
+    }
+
+    .card-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .badge-free {
+      background: rgba(30, 142, 62, 0.1);
+      color: var(--free);
+    }
+
+    .badge-commercial {
+      background: rgba(234, 67, 53, 0.1);
+      color: var(--commercial);
+    }
+
+    .card-body {
+      padding: 0 20px 16px;
+    }
+
+    .card-description {
+      font-size: 14px;
+      color: var(--on-surface-secondary);
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-specs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .spec {
+      font-size: 12px;
+    }
+
+    .spec-label {
+      color: var(--on-surface-secondary);
+    }
+
+    .spec-value {
+      font-weight: 500;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .card-sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .source-chip {
+      padding: 4px 8px;
+      background: var(--background);
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'Roboto Mono', monospace;
+      color: var(--on-surface-secondary);
+    }
+
+    .source-chip.count {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 16px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .modal-subtitle {
+      color: var(--on-surface-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--on-surface-secondary);
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-section {
+      margin-bottom: 24px;
+    }
+
+    .modal-section h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--on-surface-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .modal-specs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .modal-spec {
+      padding: 12px;
+      background: var(--background);
+      border-radius: 8px;
+    }
+
+    .modal-spec .label {
+      font-size: 12px;
+      color: var(--on-surface-secondary);
+      margin-bottom: 4px;
+    }
+
+    .modal-spec .value {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .sources-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .source-item {
+      padding: 16px;
+      background: var(--background);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .source-info h4 {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .source-info .url {
+      font-size: 12px;
+      color: var(--primary);
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .source-item .btn {
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .source-item .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Tags */
+    .tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      padding: 6px 12px;
+      background: var(--background);
+      border-radius: 16px;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .datasets-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-specs {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🛰️</span>
+        <span class="logo-text">Imagery Atlas <span>| Satellite Data Directory</span></span>
+      </a>
+      <nav>
+        <a href="index.html" class="active">Datasets</a>
+        <a href="platforms.html">Platforms</a>
+        <a href="about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Find Satellite Imagery Data</h1>
+    <p>The comprehensive directory of satellite imagery datasets and where to access them. Free and commercial sources, all in one place.</p>
+  </section>
+
+  <div class="search-container">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search datasets by name, type, or keyword...">
+    </div>
+  </div>
+
+  <main>
+    <div class="stats-bar" id="statsBar">
+      <div class="stat">
+        <span class="stat-value" id="datasetCount">0</span>
+        <span class="stat-label">Datasets</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="platformCount">0</span>
+        <span class="stat-label">Platforms</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="freeCount">0</span>
+        <span class="stat-label">Free Datasets</span>
+      </div>
+    </div>
+
+    <div class="filters" id="filters"></div>
+
+    <div class="datasets-grid" id="datasetsGrid"></div>
+  </main>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <p class="modal-subtitle" id="modalSubtitle"></p>
+        </div>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    let data = { datasets: [], platforms: [] };
+    let activeFilters = new Set();
+
+    // Load data
+    fetch('imagery-atlas-data.json')
+      .then(r => r.json())
+      .then(d => {
+        data = d;
+        init();
+      });
+
+    function init() {
+      updateStats();
+      renderFilters();
+      renderDatasets();
+
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        renderDatasets(e.target.value);
+      });
+
+      document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modalOverlay') closeModal();
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('datasetCount').textContent = data.datasets.length;
+      document.getElementById('platformCount').textContent = data.platforms.length;
+      document.getElementById('freeCount').textContent = data.datasets.filter(d => 
+        d.license.toLowerCase().includes('free') || 
+        d.license.toLowerCase().includes('public')
+      ).length;
+    }
+
+    function renderFilters() {
+      const container = document.getElementById('filters');
+      const types = {};
+      
+      data.datasets.forEach(d => {
+        const type = d.type.split(' ')[0];
+        types[type] = (types[type] || 0) + 1;
+      });
+
+      // Add special filters
+      const filters = [
+        { id: 'free', label: '🆓 Free', count: data.datasets.filter(d => 
+          d.license.toLowerCase().includes('free') || d.license.toLowerCase().includes('public')).length },
+        ...Object.entries(types).map(([type, count]) => ({
+          id: type.toLowerCase(),
+          label: type,
+          count
+        }))
+      ];
+
+      container.innerHTML = filters.map(f => `
+        <button class="filter-chip" data-filter="${f.id}">
+          ${f.label}
+          <span class="count">${f.count}</span>
+        </button>
+      `).join('');
+
+      container.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const filter = chip.dataset.filter;
+          if (activeFilters.has(filter)) {
+            activeFilters.delete(filter);
+            chip.classList.remove('active');
+          } else {
+            activeFilters.add(filter);
+            chip.classList.add('active');
+          }
+          renderDatasets(document.getElementById('searchInput').value);
+        });
+      });
+    }
+
+    function renderDatasets(search = '') {
+      const container = document.getElementById('datasetsGrid');
+      
+      let filtered = data.datasets;
+
+      // Apply search
+      if (search) {
+        const q = search.toLowerCase();
+        filtered = filtered.filter(d => 
+          d.name.toLowerCase().includes(q) ||
+          d.type.toLowerCase().includes(q) ||
+          d.operator.toLowerCase().includes(q) ||
+          d.description.toLowerCase().includes(q) ||
+          d.tags.some(t => t.includes(q))
+        );
+      }
+
+      // Apply filters
+      if (activeFilters.size > 0) {
+        filtered = filtered.filter(d => {
+          for (const filter of activeFilters) {
+            if (filter === 'free') {
+              if (d.license.toLowerCase().includes('free') || d.license.toLowerCase().includes('public')) return true;
+            } else if (d.type.toLowerCase().startsWith(filter)) {
+              return true;
+            }
+          }
+          return false;
+        });
+      }
+
+      container.innerHTML = filtered.map(d => {
+        const isFree = d.license.toLowerCase().includes('free') || d.license.toLowerCase().includes('public');
+        const displayedSources = d.sources.slice(0, 3);
+        const moreSources = d.sources.length - 3;
+
+        return `
+          <div class="dataset-card" onclick="openDataset('${d.id}')">
+            <div class="card-header">
+              <div>
+                <div class="card-title">${d.name}</div>
+                <div class="card-operator">${d.operator}</div>
+              </div>
+              <span class="card-badge ${isFree ? 'badge-free' : 'badge-commercial'}">
+                ${isFree ? 'Free' : 'Commercial'}
+              </span>
+            </div>
+            <div class="card-body">
+              <p class="card-description">${d.description}</p>
+              <div class="card-specs">
+                <div class="spec">
+                  <span class="spec-label">Resolution</span>
+                  <div class="spec-value">${d.resolution}</div>
+                </div>
+                <div class="spec">
+                  <span class="spec-label">Revisit</span>
+                  <div class="spec-value">${d.revisit}</div>
+                </div>
+              </div>
+              <div class="card-sources">
+                ${displayedSources.map(s => `<span class="source-chip">${formatSourceName(s.platform)}</span>`).join('')}
+                ${moreSources > 0 ? `<span class="source-chip count">+${moreSources}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatSourceName(platformId) {
+      const names = {
+        'usgs-earthexplorer': 'USGS',
+        'gee': 'GEE',
+        'aws-earth-search': 'AWS',
+        'microsoft-planetary': 'MS PC',
+        'copernicus-dataspace': 'Copernicus',
+        'sentinel-hub': 'SH',
+        'nasa-earthdata': 'NASA',
+        'planet-api': 'Planet',
+        'maxar-securewatch': 'Maxar',
+        'airbus-oneatlas': 'Airbus',
+        'asf-daac': 'ASF',
+        'jaxa-gportal': 'JAXA',
+        'noaa-class': 'NOAA',
+        'nasa-worldview': 'GIBS'
+      };
+      return names[platformId] || platformId;
+    }
+
+    function openDataset(id) {
+      const dataset = data.datasets.find(d => d.id === id);
+      if (!dataset) return;
+
+      const isFree = dataset.license.toLowerCase().includes('free') || dataset.license.toLowerCase().includes('public');
+
+      document.getElementById('modalTitle').textContent = dataset.name;
+      document.getElementById('modalSubtitle').textContent = `${dataset.operator} • ${dataset.type}`;
+
+      document.getElementById('modalBody').innerHTML = `
+        <div class="modal-section">
+          <h3>Description</h3>
+          <p>${dataset.description}</p>
+        </div>
+
+        <div class="modal-section">
+          <h3>Specifications</h3>
+          <div class="modal-specs">
+            <div class="modal-spec">
+              <div class="label">Resolution</div>
+              <div class="value">${dataset.resolution}</div>
+            </div>
+            <div class="modal-spec">
+              <div class="label">Revisit</div>
+              <div class="value">${dataset.revisit}</div>
+            </div>
+            <div class="modal-spec">
+              <div class="label">Bands</div>
+              <div class="value">${dataset.bands}</div>
+            </div>
+            <div class="modal-spec">
+              <div class="label">Coverage</div>
+              <div class="value">${dataset.coverage}</div>
+            </div>
+            <div class="modal-spec">
+              <div class="label">Archive</div>
+              <div class="value">${dataset.archive}</div>
+            </div>
+            <div class="modal-spec">
+              <div class="label">License</div>
+              <div class="value">${dataset.license}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Data Sources (${dataset.sources.length})</h3>
+          <div class="sources-list">
+            ${dataset.sources.map(s => {
+              const platform = data.platforms.find(p => p.id === s.platform);
+              const platformName = platform ? platform.name : s.platform;
+              return `
+              <div class="source-item">
+                <div class="source-info">
+                  <h4>${platformName}</h4>
+                  <div class="collection-id" style="font-family: monospace; font-size: 12px; color: #666; margin: 4px 0;">${s.collection}</div>
+                  <div class="notes" style="font-size: 13px; color: #5f6368;">${s.notes || ''}</div>
+                </div>
+                <a href="${s.url}" target="_blank" class="btn">Open →</a>
+              </div>
+            `}).join('')}
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Tags</h3>
+          <div class="tags-list">
+            ${dataset.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>
