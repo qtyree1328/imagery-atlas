@@ -19,25 +19,29 @@
           "platform": "gee",
           "collection": "COPERNICUS/S2_SR_HARMONIZED",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED",
-          "notes": "Recommended SR product with harmonized reflectance"
+          "notes": "Recommended SR product with harmonized reflectance",
+          "code": "import ee\nee.Initialize()\n\n# Load Sentinel-2 SR Harmonized\ns2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8])) \\\n    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))\n\n# Get median composite\ncomposite = s2.median()\nprint('Band names:', composite.bandNames().getInfo())"
         },
         {
           "platform": "aws-earth-search",
           "collection": "sentinel-2-l2a",
           "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a",
-          "notes": "STAC API, COG format"
+          "notes": "STAC API, COG format",
+          "code": "from pystac_client import Client\nimport rioxarray\n\n# Connect to Earth Search\ncatalog = Client.open('https://earth-search.aws.element84.com/v1')\n\n# Search for Sentinel-2 L2A\nsearch = catalog.search(\n    collections=['sentinel-2-l2a'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30',\n    query={'eo:cloud_cover': {'lt': 20}}\n)\nitems = list(search.items())\nprint(f'Found {len(items)} scenes')\n\n# Load a band\nitem = items[0]\nred = rioxarray.open_rasterio(item.assets['red'].href)"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "sentinel-2-l2a",
           "url": "https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a",
-          "notes": "STAC API, requires token"
+          "notes": "STAC API, requires token",
+          "code": "import planetary_computer\nimport pystac_client\n\n# Connect with auto-signing\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\n\n# Search\nsearch = catalog.search(\n    collections=['sentinel-2-l2a'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30',\n    query={'eo:cloud_cover': {'lt': 20}}\n)\nitems = list(search.items())\nprint(f'Found {len(items)} scenes')"
         },
         {
           "platform": "copernicus-dataspace",
           "collection": "SENTINEL-2/L2A",
           "url": "https://dataspace.copernicus.eu/explore-data/data-collections/sentinel-data/sentinel-2",
-          "notes": "Official ESA source, full archive"
+          "notes": "Official ESA source, full archive",
+          "code": "# Using OData API\nimport requests\n\nurl = 'https://catalogue.dataspace.copernicus.eu/odata/v1/Products'\nparams = {\n    '$filter': \"Collection/Name eq 'SENTINEL-2' and \"\n               \"Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/Value eq 'S2MSI2A') and \"\n               \"ContentDate/Start gt 2023-06-01T00:00:00.000Z and \"\n               \"ContentDate/Start lt 2023-06-30T23:59:59.999Z\",\n    '$top': 10\n}\nresponse = requests.get(url, params=params)\nproducts = response.json()['value']\nprint(f'Found {len(products)} products')"
         }
       ]
     },
@@ -60,42 +64,15 @@
           "platform": "gee",
           "collection": "COPERNICUS/S2_HARMONIZED",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_HARMONIZED",
-          "notes": "Harmonized L1C TOA"
+          "notes": "Harmonized L1C TOA",
+          "code": "import ee\nee.Initialize()\n\n# Load Sentinel-2 TOA Harmonized\ns2_toa = ee.ImageCollection('COPERNICUS/S2_HARMONIZED') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8])) \\\n    .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))\n\nprint('Count:', s2_toa.size().getInfo())"
         },
         {
           "platform": "aws-earth-search",
           "collection": "sentinel-2-l1c",
           "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l1c",
-          "notes": "STAC API"
-        },
-        {
-          "platform": "copernicus-dataspace",
-          "collection": "SENTINEL-2/L1C",
-          "url": "https://dataspace.copernicus.eu/explore-data/data-collections/sentinel-data/sentinel-2",
-          "notes": "Official ESA source"
-        }
-      ]
-    },
-    {
-      "id": "sentinel-2-c1-l2a",
-      "name": "Sentinel-2 Collection 1 L2A",
-      "shortName": "S2 C1 L2A",
-      "type": "Optical Multispectral",
-      "operator": "ESA/Copernicus",
-      "resolution": "10m / 20m / 60m",
-      "revisit": "5 days",
-      "bands": "13 bands (MSI)",
-      "coverage": "Global land",
-      "archive": "2022-present",
-      "license": "Free & Open (Copernicus)",
-      "description": "Collection 1 reprocessed Surface Reflectance with consistent processing baseline 05.00+.",
-      "tags": ["optical", "multispectral", "free", "global", "land", "surface-reflectance", "collection-1"],
-      "sources": [
-        {
-          "platform": "aws-earth-search",
-          "collection": "sentinel-2-c1-l2a",
-          "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a",
-          "notes": "STAC API, Collection 1 reprocessed"
+          "notes": "STAC API",
+          "code": "from pystac_client import Client\n\ncatalog = Client.open('https://earth-search.aws.element84.com/v1')\nsearch = catalog.search(\n    collections=['sentinel-2-l1c'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30'\n)\nprint(f'Found {search.matched()} scenes')"
         }
       ]
     },
@@ -118,31 +95,29 @@
           "platform": "gee",
           "collection": "COPERNICUS/S1_GRD",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S1_GRD",
-          "notes": "Preprocessed: thermal noise removal, radiometric calibration, terrain correction"
+          "notes": "Preprocessed: thermal noise removal, radiometric calibration, terrain correction",
+          "code": "import ee\nee.Initialize()\n\n# Load Sentinel-1 GRD\ns1 = ee.ImageCollection('COPERNICUS/S1_GRD') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8])) \\\n    .filter(ee.Filter.eq('instrumentMode', 'IW')) \\\n    .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV')) \\\n    .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VH'))\n\n# VV and VH backscatter\ncomposite = s1.mean().select(['VV', 'VH'])\nprint('Bands:', composite.bandNames().getInfo())"
         },
         {
           "platform": "aws-earth-search",
           "collection": "sentinel-1-grd",
           "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-1-grd",
-          "notes": "STAC API, COG format"
+          "notes": "STAC API, COG format",
+          "code": "from pystac_client import Client\n\ncatalog = Client.open('https://earth-search.aws.element84.com/v1')\nsearch = catalog.search(\n    collections=['sentinel-1-grd'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30'\n)\nitems = list(search.items())\nprint(f'Found {len(items)} scenes')"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "sentinel-1-grd",
           "url": "https://planetarycomputer.microsoft.com/dataset/sentinel-1-grd",
-          "notes": "STAC API"
+          "notes": "STAC API",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['sentinel-1-grd'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30'\n)\nprint(f'Found {search.matched()} scenes')"
         },
         {
           "platform": "asf-daac",
           "collection": "SENTINEL-1",
           "url": "https://search.asf.alaska.edu/#/?dataset=SENTINEL-1",
-          "notes": "Alaska Satellite Facility, full archive including SLC"
-        },
-        {
-          "platform": "copernicus-dataspace",
-          "collection": "SENTINEL-1",
-          "url": "https://dataspace.copernicus.eu/explore-data/data-collections/sentinel-data/sentinel-1",
-          "notes": "Official ESA source"
+          "notes": "Alaska Satellite Facility, full archive including SLC",
+          "code": "import asf_search as asf\n\n# Search for Sentinel-1 GRD\nresults = asf.search(\n    platform=asf.SENTINEL1,\n    processingLevel=asf.GRD_HD,\n    intersectsWith='POINT(-122.4 37.8)',\n    start='2023-06-01',\n    end='2023-06-30'\n)\nprint(f'Found {len(results)} products')\n\n# Download (requires Earthdata login)\n# results[0].download(path='./data')"
         }
       ]
     },
@@ -165,7 +140,8 @@
           "platform": "microsoft-planetary",
           "collection": "sentinel-1-rtc",
           "url": "https://planetarycomputer.microsoft.com/dataset/sentinel-1-rtc",
-          "notes": "RTC processed by Microsoft"
+          "notes": "RTC processed by Microsoft",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['sentinel-1-rtc'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30'\n)\nitems = list(search.items())\nprint(f'Found {len(items)} RTC scenes')"
         }
       ]
     },
@@ -188,13 +164,8 @@
           "platform": "gee",
           "collection": "COPERNICUS/S3/OLCI",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S3_OLCI",
-          "notes": "Full resolution (EFR)"
-        },
-        {
-          "platform": "copernicus-dataspace",
-          "collection": "SENTINEL-3/OLCI",
-          "url": "https://dataspace.copernicus.eu/explore-data/data-collections/sentinel-data/sentinel-3",
-          "notes": "Official ESA source"
+          "notes": "Full resolution (EFR)",
+          "code": "import ee\nee.Initialize()\n\n# Load Sentinel-3 OLCI\nolci = ee.ImageCollection('COPERNICUS/S3/OLCI') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\n# Chlorophyll-a estimation using OLCI bands\nprint('Count:', olci.size().getInfo())"
         }
       ]
     },
@@ -217,59 +188,8 @@
           "platform": "gee",
           "collection": "COPERNICUS/S5P/OFFL/L3_NO2",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S5P_OFFL_L3_NO2",
-          "notes": "Offline L3 product"
-        },
-        {
-          "platform": "copernicus-dataspace",
-          "collection": "SENTINEL-5P",
-          "url": "https://dataspace.copernicus.eu/explore-data/data-collections/sentinel-data/sentinel-5p",
-          "notes": "Official ESA source"
-        }
-      ]
-    },
-    {
-      "id": "sentinel-5p-co",
-      "name": "Sentinel-5P TROPOMI CO",
-      "shortName": "S5P CO",
-      "type": "Atmospheric",
-      "operator": "ESA/Copernicus",
-      "resolution": "5.5km x 7km",
-      "revisit": "Daily",
-      "bands": "SWIR spectrometer",
-      "coverage": "Global",
-      "archive": "2018-present",
-      "license": "Free & Open (Copernicus)",
-      "description": "Carbon monoxide total column.",
-      "tags": ["atmospheric", "free", "global", "air-quality", "co"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "COPERNICUS/S5P/OFFL/L3_CO",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S5P_OFFL_L3_CO",
-          "notes": "Offline L3 product"
-        }
-      ]
-    },
-    {
-      "id": "sentinel-5p-ch4",
-      "name": "Sentinel-5P TROPOMI CH4",
-      "shortName": "S5P CH4",
-      "type": "Atmospheric",
-      "operator": "ESA/Copernicus",
-      "resolution": "7km x 7km",
-      "revisit": "Daily",
-      "bands": "SWIR spectrometer",
-      "coverage": "Global",
-      "archive": "2018-present",
-      "license": "Free & Open (Copernicus)",
-      "description": "Methane total column mixing ratio.",
-      "tags": ["atmospheric", "free", "global", "climate", "methane"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "COPERNICUS/S5P/OFFL/L3_CH4",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S5P_OFFL_L3_CH4",
-          "notes": "Offline L3 product"
+          "notes": "Offline L3 product",
+          "code": "import ee\nee.Initialize()\n\n# Load Sentinel-5P NO2\nno2 = ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_NO2') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .select('tropospheric_NO2_column_number_density')\n\n# Mean NO2 concentration\nmean_no2 = no2.mean()\nprint('NO2 loaded')"
         }
       ]
     },
@@ -292,25 +212,29 @@
           "platform": "gee",
           "collection": "LANDSAT/LC09/C02/T1_L2",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LC09_C02_T1_L2",
-          "notes": "Landsat 9 Collection 2 Level-2"
+          "notes": "Landsat 9 Collection 2 Level-2",
+          "code": "import ee\nee.Initialize()\n\n# Load Landsat 9 SR\nl9 = ee.ImageCollection('LANDSAT/LC09/C02/T1_L2') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8])) \\\n    .filter(ee.Filter.lt('CLOUD_COVER', 20))\n\n# Apply scaling factors\ndef apply_scale(image):\n    optical = image.select('SR_B.').multiply(0.0000275).add(-0.2)\n    thermal = image.select('ST_B.*').multiply(0.00341802).add(149.0)\n    return image.addBands(optical, None, True).addBands(thermal, None, True)\n\nl9_scaled = l9.map(apply_scale)\nprint('Scenes:', l9_scaled.size().getInfo())"
         },
         {
           "platform": "aws-earth-search",
           "collection": "landsat-c2-l2",
           "url": "https://earth-search.aws.element84.com/v1/collections/landsat-c2-l2",
-          "notes": "STAC API, includes all Landsat C2 L2"
+          "notes": "STAC API, includes all Landsat C2 L2",
+          "code": "from pystac_client import Client\n\ncatalog = Client.open('https://earth-search.aws.element84.com/v1')\nsearch = catalog.search(\n    collections=['landsat-c2-l2'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30',\n    query={'platform': {'eq': 'landsat-9'}}\n)\nitems = list(search.items())\nprint(f'Found {len(items)} Landsat 9 scenes')"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "landsat-c2-l2",
           "url": "https://planetarycomputer.microsoft.com/dataset/landsat-c2-l2",
-          "notes": "STAC API, includes L4-9"
+          "notes": "STAC API, includes L4-9",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['landsat-c2-l2'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-06-01/2023-06-30'\n)\nprint(f'Found {search.matched()} scenes')"
         },
         {
           "platform": "usgs-earthexplorer",
           "collection": "Landsat 9 OLI-2/TIRS-2 C2 L2",
           "url": "https://earthexplorer.usgs.gov/",
-          "notes": "Official USGS source"
+          "notes": "Official USGS source",
+          "code": "# Using landsatxplore package\nfrom landsatxplore.api import API\n\n# Initialize with USGS credentials\napi = API(username='YOUR_USERNAME', password='YOUR_PASSWORD')\n\n# Search for scenes\nscenes = api.search(\n    dataset='landsat_ot_c2_l2',\n    latitude=37.8,\n    longitude=-122.4,\n    start_date='2023-06-01',\n    end_date='2023-06-30',\n    max_cloud_cover=20\n)\nprint(f'Found {len(scenes)} scenes')\napi.logout()"
         }
       ]
     },
@@ -333,158 +257,8 @@
           "platform": "gee",
           "collection": "LANDSAT/LC08/C02/T1_L2",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LC08_C02_T1_L2",
-          "notes": "Landsat 8 Collection 2 Level-2"
-        },
-        {
-          "platform": "usgs-earthexplorer",
-          "collection": "Landsat 8 OLI/TIRS C2 L2",
-          "url": "https://earthexplorer.usgs.gov/",
-          "notes": "Official USGS source"
-        }
-      ]
-    },
-    {
-      "id": "landsat-7-c2-l2",
-      "name": "Landsat 7 Collection 2 Level-2",
-      "shortName": "L7 C2 L2",
-      "type": "Optical Multispectral",
-      "operator": "USGS/NASA",
-      "resolution": "30m (15m pan)",
-      "revisit": "16 days",
-      "bands": "8 bands (ETM+)",
-      "coverage": "Global",
-      "archive": "1999-present",
-      "license": "Public Domain",
-      "description": "Surface reflectance. Note: SLC-off striping after May 2003.",
-      "tags": ["optical", "multispectral", "free", "global", "land", "surface-reflectance"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "LANDSAT/LE07/C02/T1_L2",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LE07_C02_T1_L2",
-          "notes": "Landsat 7 Collection 2 Level-2"
-        },
-        {
-          "platform": "usgs-earthexplorer",
-          "collection": "Landsat 7 ETM+ C2 L2",
-          "url": "https://earthexplorer.usgs.gov/",
-          "notes": "Official USGS source"
-        }
-      ]
-    },
-    {
-      "id": "landsat-5-c2-l2",
-      "name": "Landsat 5 Collection 2 Level-2",
-      "shortName": "L5 C2 L2",
-      "type": "Optical Multispectral",
-      "operator": "USGS/NASA",
-      "resolution": "30m",
-      "revisit": "16 days",
-      "bands": "7 bands (TM)",
-      "coverage": "Global",
-      "archive": "1984-2012",
-      "license": "Public Domain",
-      "description": "Surface reflectance. Historical archive.",
-      "tags": ["optical", "multispectral", "free", "global", "land", "surface-reflectance", "historical"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "LANDSAT/LT05/C02/T1_L2",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LT05_C02_T1_L2",
-          "notes": "Landsat 5 Collection 2 Level-2"
-        },
-        {
-          "platform": "usgs-earthexplorer",
-          "collection": "Landsat 5 TM C2 L2",
-          "url": "https://earthexplorer.usgs.gov/",
-          "notes": "Official USGS source"
-        }
-      ]
-    },
-    {
-      "id": "landsat-4-c2-l2",
-      "name": "Landsat 4 Collection 2 Level-2",
-      "shortName": "L4 C2 L2",
-      "type": "Optical Multispectral",
-      "operator": "USGS/NASA",
-      "resolution": "30m",
-      "revisit": "16 days",
-      "bands": "7 bands (TM)",
-      "coverage": "Global",
-      "archive": "1982-1993",
-      "license": "Public Domain",
-      "description": "Surface reflectance. Earliest TM archive.",
-      "tags": ["optical", "multispectral", "free", "global", "land", "surface-reflectance", "historical"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "LANDSAT/LT04/C02/T1_L2",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/LANDSAT_LT04_C02_T1_L2",
-          "notes": "Landsat 4 Collection 2 Level-2"
-        },
-        {
-          "platform": "usgs-earthexplorer",
-          "collection": "Landsat 4 TM C2 L2",
-          "url": "https://earthexplorer.usgs.gov/",
-          "notes": "Official USGS source"
-        }
-      ]
-    },
-    {
-      "id": "hls-l30",
-      "name": "HLS Landsat (HLSL30)",
-      "shortName": "HLS L30",
-      "type": "Optical Multispectral",
-      "operator": "NASA",
-      "resolution": "30m",
-      "revisit": "2-3 days (combined)",
-      "bands": "Harmonized bands",
-      "coverage": "Global land",
-      "archive": "2013-present",
-      "license": "Public Domain",
-      "description": "Harmonized Landsat Sentinel-2 product. Landsat component at 30m.",
-      "tags": ["optical", "multispectral", "free", "global", "harmonized"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "NASA/HLS/HLSL30/v002",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/NASA_HLS_HLSL30_v002",
-          "notes": "HLS Landsat component"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "HLSL30.002",
-          "url": "https://lpdaac.usgs.gov/products/hlsl30v002/",
-          "notes": "LP DAAC"
-        }
-      ]
-    },
-    {
-      "id": "hls-s30",
-      "name": "HLS Sentinel-2 (HLSS30)",
-      "shortName": "HLS S30",
-      "type": "Optical Multispectral",
-      "operator": "NASA",
-      "resolution": "30m",
-      "revisit": "2-3 days (combined)",
-      "bands": "Harmonized bands",
-      "coverage": "Global land",
-      "archive": "2015-present",
-      "license": "Free & Open",
-      "description": "Harmonized Landsat Sentinel-2 product. Sentinel-2 component resampled to 30m.",
-      "tags": ["optical", "multispectral", "free", "global", "harmonized"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "NASA/HLS/HLSS30/v002",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/NASA_HLS_HLSS30_v002",
-          "notes": "HLS Sentinel-2 component"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "HLSS30.002",
-          "url": "https://lpdaac.usgs.gov/products/hlss30v002/",
-          "notes": "LP DAAC"
+          "notes": "Landsat 8 Collection 2 Level-2",
+          "code": "import ee\nee.Initialize()\n\nl8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8])) \\\n    .filter(ee.Filter.lt('CLOUD_COVER', 20))\n\nprint('Scenes:', l8.size().getInfo())"
         }
       ]
     },
@@ -507,19 +281,15 @@
           "platform": "gee",
           "collection": "MODIS/061/MOD09GA",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD09GA",
-          "notes": "Collection 6.1"
-        },
-        {
-          "platform": "microsoft-planetary",
-          "collection": "modis-09A1-061",
-          "url": "https://planetarycomputer.microsoft.com/dataset/modis-09A1-061",
-          "notes": "8-day composite version"
+          "notes": "Collection 6.1",
+          "code": "import ee\nee.Initialize()\n\nmod09 = ee.ImageCollection('MODIS/061/MOD09GA') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\n# Surface reflectance bands\ncomposite = mod09.median().select(['sur_refl_b01', 'sur_refl_b02', 'sur_refl_b03'])\nprint('Loaded MODIS SR')"
         },
         {
           "platform": "nasa-earthdata",
           "collection": "MOD09GA.061",
           "url": "https://lpdaac.usgs.gov/products/mod09gav061/",
-          "notes": "LP DAAC official source"
+          "notes": "LP DAAC official source",
+          "code": "import earthaccess\n\n# Login to Earthdata\nearthaccess.login()\n\n# Search for MOD09GA\nresults = earthaccess.search_data(\n    short_name='MOD09GA',\n    version='061',\n    bounding_box=(-122.5, 37.7, -122.3, 37.9),\n    temporal=('2023-06-01', '2023-06-30')\n)\nprint(f'Found {len(results)} granules')\n\n# Download\n# earthaccess.download(results, './data')"
         }
       ]
     },
@@ -542,19 +312,15 @@
           "platform": "gee",
           "collection": "MODIS/061/MOD13Q1",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD13Q1",
-          "notes": "250m resolution"
+          "notes": "250m resolution",
+          "code": "import ee\nee.Initialize()\n\nmod13 = ee.ImageCollection('MODIS/061/MOD13Q1') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\n# NDVI time series\nndvi = mod13.select('NDVI').map(lambda img: img.multiply(0.0001))\nprint('NDVI composites:', ndvi.size().getInfo())"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "modis-13Q1-061",
           "url": "https://planetarycomputer.microsoft.com/dataset/modis-13Q1-061",
-          "notes": "Collection 6.1"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "MOD13Q1.061",
-          "url": "https://lpdaac.usgs.gov/products/mod13q1v061/",
-          "notes": "LP DAAC"
+          "notes": "Collection 6.1",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['modis-13Q1-061'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2023-01-01/2023-12-31'\n)\nprint(f'Found {search.matched()} composites')"
         }
       ]
     },
@@ -577,19 +343,8 @@
           "platform": "gee",
           "collection": "MODIS/061/MOD11A1",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/MODIS_061_MOD11A1",
-          "notes": "Terra daily LST"
-        },
-        {
-          "platform": "microsoft-planetary",
-          "collection": "modis-11A1-061",
-          "url": "https://planetarycomputer.microsoft.com/dataset/modis-11A1-061",
-          "notes": "Collection 6.1"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "MOD11A1.061",
-          "url": "https://lpdaac.usgs.gov/products/mod11a1v061/",
-          "notes": "LP DAAC"
+          "notes": "Terra daily LST",
+          "code": "import ee\nee.Initialize()\n\nlst = ee.ImageCollection('MODIS/061/MOD11A1') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8])) \\\n    .select('LST_Day_1km')\n\n# Convert to Celsius\nlst_c = lst.map(lambda img: img.multiply(0.02).subtract(273.15))\nprint('LST images:', lst_c.size().getInfo())"
         }
       ]
     },
@@ -612,13 +367,8 @@
           "platform": "gee",
           "collection": "NOAA/VIIRS/001/VNP09GA",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/NOAA_VIIRS_001_VNP09GA",
-          "notes": "Collection 1"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "VNP09GA.001",
-          "url": "https://lpdaac.usgs.gov/products/vnp09gav001/",
-          "notes": "LP DAAC"
+          "notes": "Collection 1",
+          "code": "import ee\nee.Initialize()\n\nviirs = ee.ImageCollection('NOAA/VIIRS/001/VNP09GA') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\nprint('VIIRS images:', viirs.size().getInfo())"
         }
       ]
     },
@@ -641,25 +391,22 @@
           "platform": "gee",
           "collection": "USDA/NAIP/DOQQ",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/USDA_NAIP_DOQQ",
-          "notes": "Full US coverage"
+          "notes": "Full US coverage",
+          "code": "import ee\nee.Initialize()\n\nnaip = ee.ImageCollection('USDA/NAIP/DOQQ') \\\n    .filterDate('2020-01-01', '2022-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\n# Get most recent image\nrecent = naip.sort('system:time_start', False).first()\nprint('Bands:', recent.bandNames().getInfo())"
         },
         {
           "platform": "aws-earth-search",
           "collection": "naip",
           "url": "https://earth-search.aws.element84.com/v1/collections/naip",
-          "notes": "STAC API, COG format"
+          "notes": "STAC API, COG format",
+          "code": "from pystac_client import Client\n\ncatalog = Client.open('https://earth-search.aws.element84.com/v1')\nsearch = catalog.search(\n    collections=['naip'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2020-01-01/2022-12-31'\n)\nitems = list(search.items())\nprint(f'Found {len(items)} NAIP tiles')"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "naip",
           "url": "https://planetarycomputer.microsoft.com/dataset/naip",
-          "notes": "STAC API"
-        },
-        {
-          "platform": "usgs-earthexplorer",
-          "collection": "NAIP",
-          "url": "https://earthexplorer.usgs.gov/",
-          "notes": "USGS archive"
+          "notes": "STAC API",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['naip'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2020-01-01/2022-12-31'\n)\nprint(f'Found {search.matched()} tiles')"
         }
       ]
     },
@@ -682,19 +429,15 @@
           "platform": "gee",
           "collection": "ASTER/AST_L1T_003",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/ASTER_AST_L1T_003",
-          "notes": "L1T radiance"
+          "notes": "L1T radiance",
+          "code": "import ee\nee.Initialize()\n\naster = ee.ImageCollection('ASTER/AST_L1T_003') \\\n    .filterDate('2020-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\nprint('ASTER scenes:', aster.size().getInfo())"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "aster-l1t",
           "url": "https://planetarycomputer.microsoft.com/dataset/aster-l1t",
-          "notes": "STAC API"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "AST_L1T.003",
-          "url": "https://lpdaac.usgs.gov/products/ast_l1tv003/",
-          "notes": "LP DAAC official source"
+          "notes": "STAC API",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['aster-l1t'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2020-01-01/2023-12-31'\n)\nprint(f'Found {search.matched()} scenes')"
         }
       ]
     },
@@ -717,19 +460,15 @@
           "platform": "gee",
           "collection": "NOAA/GOES/16/MCMIPF",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/NOAA_GOES_16_MCMIPF",
-          "notes": "Full disk multi-band"
+          "notes": "Full disk multi-band",
+          "code": "import ee\nee.Initialize()\n\ngoes = ee.ImageCollection('NOAA/GOES/16/MCMIPF') \\\n    .filterDate('2023-06-15', '2023-06-16')\n\n# True color\ntrue_color = goes.first().select(['CMI_C02', 'CMI_C03', 'CMI_C01'])\nprint('Loaded GOES-16')"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "goes-cmi",
           "url": "https://planetarycomputer.microsoft.com/dataset/goes-cmi",
-          "notes": "GOES CMI imagery"
-        },
-        {
-          "platform": "noaa-class",
-          "collection": "GOES-R",
-          "url": "https://www.class.noaa.gov/",
-          "notes": "Official NOAA archive"
+          "notes": "GOES CMI imagery",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['goes-cmi'],\n    datetime='2023-06-15T12:00:00Z/2023-06-15T13:00:00Z'\n)\nprint(f'Found {search.matched()} images')"
         }
       ]
     },
@@ -752,48 +491,15 @@
           "platform": "aws-earth-search",
           "collection": "cop-dem-glo-30",
           "url": "https://earth-search.aws.element84.com/v1/collections/cop-dem-glo-30",
-          "notes": "30m global"
+          "notes": "30m global",
+          "code": "from pystac_client import Client\nimport rioxarray\n\ncatalog = Client.open('https://earth-search.aws.element84.com/v1')\nsearch = catalog.search(\n    collections=['cop-dem-glo-30'],\n    bbox=[-122.5, 37.7, -122.3, 37.9]\n)\nitems = list(search.items())\nprint(f'Found {len(items)} DEM tiles')\n\n# Load elevation\ndem = rioxarray.open_rasterio(items[0].assets['data'].href)"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "cop-dem-glo-30",
           "url": "https://planetarycomputer.microsoft.com/dataset/cop-dem-glo-30",
-          "notes": "STAC API"
-        },
-        {
-          "platform": "copernicus-dataspace",
-          "collection": "COP-DEM-GLO-30",
-          "url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/copernicus-dem",
-          "notes": "Official source"
-        }
-      ]
-    },
-    {
-      "id": "copernicus-dem-90",
-      "name": "Copernicus DEM GLO-90",
-      "shortName": "COP-DEM 90",
-      "type": "DEM",
-      "operator": "ESA/Copernicus",
-      "resolution": "90m",
-      "revisit": "N/A (static)",
-      "bands": "Elevation",
-      "coverage": "Global",
-      "archive": "2021-present",
-      "license": "Free & Open",
-      "description": "Global DEM derived from TanDEM-X at 90m resolution.",
-      "tags": ["dem", "elevation", "free", "global"],
-      "sources": [
-        {
-          "platform": "aws-earth-search",
-          "collection": "cop-dem-glo-90",
-          "url": "https://earth-search.aws.element84.com/v1/collections/cop-dem-glo-90",
-          "notes": "90m global"
-        },
-        {
-          "platform": "microsoft-planetary",
-          "collection": "cop-dem-glo-90",
-          "url": "https://planetarycomputer.microsoft.com/dataset/cop-dem-glo-90",
-          "notes": "STAC API"
+          "notes": "STAC API",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['cop-dem-glo-30'],\n    bbox=[-122.5, 37.7, -122.3, 37.9]\n)\nprint(f'Found {search.matched()} tiles')"
         }
       ]
     },
@@ -816,54 +522,46 @@
           "platform": "gee",
           "collection": "JAXA/ALOS/PALSAR/YEARLY/SAR",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/JAXA_ALOS_PALSAR_YEARLY_SAR",
-          "notes": "Annual mosaics"
+          "notes": "Annual mosaics",
+          "code": "import ee\nee.Initialize()\n\npalsar = ee.ImageCollection('JAXA/ALOS/PALSAR/YEARLY/SAR') \\\n    .filterDate('2020-01-01', '2020-12-31')\n\n# HH and HV backscatter\nimage = palsar.first().select(['HH', 'HV'])\nprint('Bands:', image.bandNames().getInfo())"
         },
         {
           "platform": "microsoft-planetary",
           "collection": "alos-palsar-mosaic",
           "url": "https://planetarycomputer.microsoft.com/dataset/alos-palsar-mosaic",
-          "notes": "Annual mosaics"
-        },
-        {
-          "platform": "jaxa-gportal",
-          "collection": "ALOS/PALSAR",
-          "url": "https://www.eorc.jaxa.jp/ALOS/en/dataset/fnf_e.htm",
-          "notes": "JAXA official"
+          "notes": "Annual mosaics",
+          "code": "import planetary_computer\nimport pystac_client\n\ncatalog = pystac_client.Client.open(\n    'https://planetarycomputer.microsoft.com/api/stac/v1',\n    modifier=planetary_computer.sign_inplace\n)\nsearch = catalog.search(\n    collections=['alos-palsar-mosaic'],\n    bbox=[-122.5, 37.7, -122.3, 37.9],\n    datetime='2020-01-01/2020-12-31'\n)\nprint(f'Found {search.matched()} tiles')"
         }
       ]
     },
     {
-      "id": "alos-dsm",
-      "name": "ALOS World 3D-30m (AW3D30)",
-      "shortName": "AW3D30",
-      "type": "DEM",
-      "operator": "JAXA",
+      "id": "hls-l30",
+      "name": "HLS Landsat (HLSL30)",
+      "shortName": "HLS L30",
+      "type": "Optical Multispectral",
+      "operator": "NASA",
       "resolution": "30m",
-      "revisit": "N/A (static)",
-      "bands": "Elevation",
-      "coverage": "Global",
-      "archive": "2015-present",
-      "license": "Free (non-commercial)",
-      "description": "Global DSM from ALOS PRISM stereo imagery.",
-      "tags": ["dem", "elevation", "free", "global"],
+      "revisit": "2-3 days (combined)",
+      "bands": "Harmonized bands",
+      "coverage": "Global land",
+      "archive": "2013-present",
+      "license": "Public Domain",
+      "description": "Harmonized Landsat Sentinel-2 product. Landsat component at 30m.",
+      "tags": ["optical", "multispectral", "free", "global", "harmonized"],
       "sources": [
         {
           "platform": "gee",
-          "collection": "JAXA/ALOS/AW3D30/V4_1",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/JAXA_ALOS_AW3D30_V4_1",
-          "notes": "Version 4.1"
+          "collection": "NASA/HLS/HLSL30/v002",
+          "url": "https://developers.google.com/earth-engine/datasets/catalog/NASA_HLS_HLSL30_v002",
+          "notes": "HLS Landsat component",
+          "code": "import ee\nee.Initialize()\n\nhls_l30 = ee.ImageCollection('NASA/HLS/HLSL30/v002') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\nprint('HLS Landsat scenes:', hls_l30.size().getInfo())"
         },
         {
-          "platform": "microsoft-planetary",
-          "collection": "alos-dem",
-          "url": "https://planetarycomputer.microsoft.com/dataset/alos-dem",
-          "notes": "STAC API"
-        },
-        {
-          "platform": "jaxa-gportal",
-          "collection": "AW3D30",
-          "url": "https://www.eorc.jaxa.jp/ALOS/en/dataset/aw3d30/aw3d30_e.htm",
-          "notes": "JAXA official"
+          "platform": "nasa-earthdata",
+          "collection": "HLSL30.002",
+          "url": "https://lpdaac.usgs.gov/products/hlsl30v002/",
+          "notes": "LP DAAC",
+          "code": "import earthaccess\n\nearthaccess.login()\nresults = earthaccess.search_data(\n    short_name='HLSL30',\n    version='002',\n    bounding_box=(-122.5, 37.7, -122.3, 37.9),\n    temporal=('2023-06-01', '2023-06-30')\n)\nprint(f'Found {len(results)} granules')"
         }
       ]
     },
@@ -886,48 +584,15 @@
           "platform": "gee",
           "collection": "NASA/EMIT/L2A/RFL",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/NASA_EMIT_L2A_RFL",
-          "notes": "L2A reflectance"
+          "notes": "L2A reflectance",
+          "code": "import ee\nee.Initialize()\n\nemit = ee.ImageCollection('NASA/EMIT/L2A/RFL') \\\n    .filterDate('2023-01-01', '2023-12-31') \\\n    .filterBounds(ee.Geometry.Point([-116.5, 34.5]))  # Desert region\n\nprint('EMIT scenes:', emit.size().getInfo())"
         },
         {
           "platform": "nasa-earthdata",
           "collection": "EMITL2ARFL.001",
           "url": "https://lpdaac.usgs.gov/products/emitl2arflv001/",
-          "notes": "LP DAAC"
-        }
-      ]
-    },
-    {
-      "id": "nasadem",
-      "name": "NASADEM",
-      "shortName": "NASADEM",
-      "type": "DEM",
-      "operator": "NASA",
-      "resolution": "30m",
-      "revisit": "N/A (static)",
-      "bands": "Elevation",
-      "coverage": "Global (±60° lat)",
-      "archive": "2020-present",
-      "license": "Public Domain",
-      "description": "Reprocessed SRTM with voids filled using ASTER and other data.",
-      "tags": ["dem", "elevation", "free", "global"],
-      "sources": [
-        {
-          "platform": "gee",
-          "collection": "NASA/NASADEM_HGT/001",
-          "url": "https://developers.google.com/earth-engine/datasets/catalog/NASA_NASADEM_HGT_001",
-          "notes": "Height product"
-        },
-        {
-          "platform": "microsoft-planetary",
-          "collection": "nasadem",
-          "url": "https://planetarycomputer.microsoft.com/dataset/nasadem",
-          "notes": "STAC API"
-        },
-        {
-          "platform": "nasa-earthdata",
-          "collection": "NASADEM",
-          "url": "https://lpdaac.usgs.gov/products/nasadem_hgtv001/",
-          "notes": "LP DAAC"
+          "notes": "LP DAAC",
+          "code": "import earthaccess\n\nearthaccess.login()\nresults = earthaccess.search_data(\n    short_name='EMITL2ARFL',\n    version='001',\n    bounding_box=(-117, 34, -116, 35),\n    temporal=('2023-01-01', '2023-12-31')\n)\nprint(f'Found {len(results)} granules')"
         }
       ]
     },
@@ -950,7 +615,8 @@
           "platform": "gee",
           "collection": "GOOGLE/DYNAMICWORLD/V1",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_DYNAMICWORLD_V1",
-          "notes": "Per-image predictions"
+          "notes": "Per-image predictions",
+          "code": "import ee\nee.Initialize()\n\ndw = ee.ImageCollection('GOOGLE/DYNAMICWORLD/V1') \\\n    .filterDate('2023-06-01', '2023-06-30') \\\n    .filterBounds(ee.Geometry.Point([-122.4, 37.8]))\n\n# Get dominant land cover\nlabel = dw.select('label').mode()\nprint('Classes: water, trees, grass, flooded_veg, crops, shrub, built, bare, snow_ice')"
         }
       ]
     },
@@ -973,30 +639,8 @@
           "platform": "gee",
           "collection": "ESA/WorldCover/v200",
           "url": "https://developers.google.com/earth-engine/datasets/catalog/ESA_WorldCover_v200",
-          "notes": "2021 version"
-        }
-      ]
-    },
-    {
-      "id": "io-lulc",
-      "name": "10m Annual Land Use Land Cover",
-      "shortName": "IO LULC",
-      "type": "Land Cover",
-      "operator": "Impact Observatory/Esri",
-      "resolution": "10m",
-      "revisit": "Annual",
-      "bands": "9 land cover classes",
-      "coverage": "Global",
-      "archive": "2017-present",
-      "license": "CC BY 4.0",
-      "description": "Annual global land cover derived from Sentinel-2 using deep learning.",
-      "tags": ["land-cover", "free", "global", "sentinel-derived"],
-      "sources": [
-        {
-          "platform": "microsoft-planetary",
-          "collection": "io-lulc-annual-v02",
-          "url": "https://planetarycomputer.microsoft.com/dataset/io-lulc-annual-v02",
-          "notes": "Version 2, annual maps"
+          "notes": "2021 version",
+          "code": "import ee\nee.Initialize()\n\nworldcover = ee.ImageCollection('ESA/WorldCover/v200').first()\n\n# Classes: 10=Tree, 20=Shrub, 30=Grass, 40=Crop, 50=Built, 60=Bare, 70=Snow, 80=Water, 90=Wetland, 95=Mangrove, 100=Moss\nprint('Bands:', worldcover.bandNames().getInfo())"
         }
       ]
     }
@@ -1007,117 +651,153 @@
       "name": "Google Earth Engine",
       "url": "https://earthengine.google.com",
       "catalogUrl": "https://developers.google.com/earth-engine/datasets/catalog",
+      "apiUrl": "https://developers.google.com/earth-engine/guides",
       "api": "Python/JavaScript API",
       "registration": "Required (free for research/education)",
+      "apiKey": "OAuth2 authentication",
+      "rateLimit": "Compute quotas apply",
       "pricing": "Free for research/education; commercial pricing available",
       "formats": ["GeoTIFF", "TFRecord"],
-      "description": "Cloud-based geospatial analysis. Process petabytes without downloading.",
-      "strengths": ["No download needed", "Massive catalog", "In-browser analysis", "Temporal analysis"],
-      "limitations": ["Learning curve", "Export quotas", "Commercial license needed for business"]
+      "description": "Cloud-based geospatial analysis platform. Process petabytes of satellite imagery without downloading. Ideal for large-scale analysis and time series.",
+      "strengths": ["No download needed", "Massive catalog (800+ datasets)", "In-browser code editor", "Parallel processing at scale"],
+      "limitations": ["Learning curve for API", "Export quotas", "Commercial license needed for business"],
+      "datasets": ["sentinel-2-l2a-harmonized", "sentinel-2-l1c-harmonized", "sentinel-1-grd", "sentinel-3-olci", "sentinel-5p-no2", "landsat-9-c2-l2", "landsat-8-c2-l2", "modis-mod09ga", "modis-mod13q1", "modis-mod11a1", "viirs-vnp09ga", "naip", "aster-l1t", "goes-16-mcmipf", "alos-palsar-mosaic", "hls-l30", "emit-l2a", "dynamic-world", "esa-worldcover"]
     },
     {
       "id": "aws-earth-search",
       "name": "AWS Earth Search (Element 84)",
       "url": "https://earth-search.aws.element84.com/v1",
       "catalogUrl": "https://earth-search.aws.element84.com/v1/collections",
+      "apiUrl": "https://stacspec.org/STAC-api.html",
       "api": "STAC API",
       "registration": "Not required",
+      "apiKey": "None required",
+      "rateLimit": "No hard limits",
       "pricing": "Free access (AWS egress fees may apply)",
       "formats": ["COG", "STAC"],
-      "description": "STAC API for satellite data on AWS. Best for cloud-native workflows.",
-      "strengths": ["No auth required", "STAC compliant", "COG format", "Fast"],
-      "limitations": ["AWS egress costs if downloading to non-AWS"]
+      "description": "STAC-compliant API for accessing satellite data stored on AWS. Cloud-optimized GeoTIFFs enable efficient partial reads. Best for cloud-native workflows.",
+      "strengths": ["No auth required", "STAC compliant", "Cloud-optimized format", "Fast API responses"],
+      "limitations": ["AWS egress costs if downloading outside AWS", "Smaller catalog than GEE"],
+      "datasets": ["sentinel-2-l2a-harmonized", "sentinel-2-l1c-harmonized", "sentinel-1-grd", "landsat-9-c2-l2", "naip", "copernicus-dem-30"]
     },
     {
       "id": "microsoft-planetary",
       "name": "Microsoft Planetary Computer",
       "url": "https://planetarycomputer.microsoft.com",
       "catalogUrl": "https://planetarycomputer.microsoft.com/catalog",
+      "apiUrl": "https://planetarycomputer.microsoft.com/docs/quickstarts/reading-stac/",
       "api": "STAC API",
       "registration": "Required (free)",
+      "apiKey": "Token via planetary_computer package",
+      "rateLimit": "Fair use policy",
       "pricing": "Free",
       "formats": ["COG", "Zarr", "GeoParquet"],
-      "description": "Microsoft's geospatial platform with integrated JupyterHub.",
-      "strengths": ["ML-ready", "JupyterHub included", "STAC compliant", "Large catalog"],
-      "limitations": ["Token refresh required", "Account approval needed"]
+      "description": "Microsoft's planetary-scale geospatial platform with integrated JupyterHub environment. Excellent for ML workflows with pre-configured environments.",
+      "strengths": ["ML-ready environment", "Free JupyterHub", "STAC compliant", "Large catalog (100+ datasets)"],
+      "limitations": ["Token refresh required", "Account approval may take time"],
+      "datasets": ["sentinel-2-l2a-harmonized", "sentinel-1-grd", "sentinel-1-rtc", "landsat-9-c2-l2", "modis-mod13q1", "naip", "aster-l1t", "goes-16-mcmipf", "copernicus-dem-30", "alos-palsar-mosaic"]
     },
     {
       "id": "copernicus-dataspace",
       "name": "Copernicus Data Space Ecosystem",
       "url": "https://dataspace.copernicus.eu",
       "catalogUrl": "https://dataspace.copernicus.eu/explore-data/data-collections",
+      "apiUrl": "https://documentation.dataspace.copernicus.eu/APIs.html",
       "api": "STAC, Sentinel Hub, OData, openEO",
       "registration": "Required (free)",
-      "pricing": "Free (processing units for advanced features)",
+      "apiKey": "OAuth2 token",
+      "rateLimit": "Processing units for advanced features",
+      "pricing": "Free (processing units limited on free tier)",
       "formats": ["SAFE", "COG", "NetCDF"],
-      "description": "Official ESA portal for all Copernicus/Sentinel data. Replaced Sci Hub.",
-      "strengths": ["Complete Sentinel archive", "Multiple APIs", "Official source", "Full resolution"],
-      "limitations": ["Processing units limited on free tier"]
+      "description": "Official ESA portal for all Copernicus/Sentinel data. Replaced the old Sci Hub. Complete archive with multiple API options.",
+      "strengths": ["Complete Sentinel archive", "Multiple APIs available", "Official source", "Full resolution data"],
+      "limitations": ["Processing units limited on free tier", "Complex authentication"],
+      "datasets": ["sentinel-2-l2a-harmonized", "sentinel-2-l1c-harmonized", "sentinel-1-grd", "sentinel-3-olci"]
     },
     {
       "id": "usgs-earthexplorer",
       "name": "USGS EarthExplorer",
       "url": "https://earthexplorer.usgs.gov",
       "catalogUrl": "https://earthexplorer.usgs.gov",
+      "apiUrl": "https://m2m.cr.usgs.gov/",
       "api": "M2M REST API",
       "registration": "Required (free)",
+      "apiKey": "API key via M2M portal",
+      "rateLimit": "Download limits apply",
       "pricing": "Free",
       "formats": ["GeoTIFF", "HDF", "NetCDF"],
-      "description": "USGS primary interface for Landsat and US data. 50+ year archive.",
-      "strengths": ["Complete Landsat archive", "Bulk download", "US aerial data"],
-      "limitations": ["API requires approval", "Interface can be slow"]
+      "description": "USGS primary interface for Landsat and US aerial data. Complete 50+ year Landsat archive. Bulk download available.",
+      "strengths": ["Complete Landsat archive back to 1972", "Bulk download tool", "US aerial data (NAIP, high-res)"],
+      "limitations": ["API requires separate approval", "Web interface can be slow", "Complex search"],
+      "datasets": ["landsat-9-c2-l2"]
     },
     {
       "id": "nasa-earthdata",
       "name": "NASA Earthdata",
       "url": "https://earthdata.nasa.gov",
       "catalogUrl": "https://search.earthdata.nasa.gov",
-      "api": "CMR API",
+      "apiUrl": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
+      "api": "CMR API / earthaccess Python",
       "registration": "Required (free)",
+      "apiKey": "Earthdata Login tokens",
+      "rateLimit": "Fair use",
       "pricing": "Free",
       "formats": ["HDF4/5", "NetCDF", "GeoTIFF"],
-      "description": "Gateway to all NASA Earth science data across DAACs.",
-      "strengths": ["All NASA data", "LANCE near-real-time", "CMR unified search"],
-      "limitations": ["Multiple DAACs can be confusing", "Various formats"]
+      "description": "Gateway to all NASA Earth science data across 12 DAACs. Use earthaccess Python package for easy access.",
+      "strengths": ["All NASA data in one place", "LANCE near-real-time", "earthaccess simplifies auth"],
+      "limitations": ["Multiple DAACs can be confusing", "Various data formats"],
+      "datasets": ["modis-mod09ga", "hls-l30", "emit-l2a"]
     },
     {
       "id": "asf-daac",
       "name": "ASF DAAC (Alaska Satellite Facility)",
       "url": "https://asf.alaska.edu",
       "catalogUrl": "https://search.asf.alaska.edu",
-      "api": "SearchAPI, asf_search Python",
+      "apiUrl": "https://docs.asf.alaska.edu/api/basics/",
+      "api": "SearchAPI / asf_search Python",
       "registration": "Required (NASA Earthdata)",
+      "apiKey": "Earthdata Login",
+      "rateLimit": "Fair use",
       "pricing": "Free",
       "formats": ["GeoTIFF", "SAFE"],
-      "description": "Alaska Satellite Facility. Primary US source for SAR data.",
-      "strengths": ["Complete SAR archive", "InSAR products", "Vertex interface", "On-demand processing"],
-      "limitations": ["SAR-focused only"]
+      "description": "Primary US source for SAR data. Complete Sentinel-1 archive plus historical SAR missions. On-demand InSAR processing available.",
+      "strengths": ["Complete SAR archive", "On-demand InSAR products", "Vertex visual interface", "asf_search Python package"],
+      "limitations": ["SAR-focused only", "Large file sizes"],
+      "datasets": ["sentinel-1-grd"]
     },
     {
       "id": "noaa-class",
       "name": "NOAA CLASS",
       "url": "https://www.class.noaa.gov",
       "catalogUrl": "https://www.class.noaa.gov",
-      "api": "Order-based",
+      "apiUrl": "https://www.class.noaa.gov/saa/products/classlogin",
+      "api": "Order-based system",
       "registration": "Required (free)",
+      "apiKey": "Account login",
+      "rateLimit": "Order queue",
       "pricing": "Free",
       "formats": ["NetCDF", "HDF", "Binary"],
-      "description": "NOAA's archive for weather satellite data (GOES, VIIRS, etc.).",
-      "strengths": ["Complete NOAA archive", "Weather satellite data"],
-      "limitations": ["Order-based system", "Can be slow"]
+      "description": "NOAA's archive for weather satellite data including GOES, VIIRS, and historical missions. Order-based retrieval system.",
+      "strengths": ["Complete NOAA archive", "All weather satellite data", "Historical missions"],
+      "limitations": ["Order-based (not instant)", "Can be slow", "Complex interface"],
+      "datasets": ["goes-16-mcmipf"]
     },
     {
       "id": "jaxa-gportal",
       "name": "JAXA G-Portal",
       "url": "https://gportal.jaxa.jp",
       "catalogUrl": "https://gportal.jaxa.jp/gpr/search",
+      "apiUrl": "https://gportal.jaxa.jp/gpr/information/api",
       "api": "REST API",
       "registration": "Required (free)",
+      "apiKey": "Account login",
+      "rateLimit": "Fair use",
       "pricing": "Free (most data)",
       "formats": ["HDF5", "GeoTIFF"],
-      "description": "JAXA's portal for Japanese satellite data (ALOS, GCOM, Himawari).",
-      "strengths": ["Japanese satellite data", "ALOS/PALSAR archive"],
-      "limitations": ["Interface primarily in Japanese"]
+      "description": "JAXA's portal for Japanese satellite data including ALOS, GCOM, and Himawari. Primary source for PALSAR data.",
+      "strengths": ["Japanese satellite data", "Complete ALOS/PALSAR archive", "Himawari geostationary"],
+      "limitations": ["Interface primarily in Japanese", "Registration process in Japanese"],
+      "datasets": ["alos-palsar-mosaic"]
     }
   ]
 }
